@@ -29,3 +29,8 @@ fixes this.
 - `WindowMover.swift`: the Accessibility calls, cycling, restore and displays
 - `HotKeys.swift`: global shortcuts through Carbon `RegisterEventHotKey`
 - `AppDelegate.swift`: the menu bar item and menu
+
+## Working on the snap pop-up
+
+- `"build/Window Snapper.app/Contents/MacOS/WindowSnapper" --demo-popup` steps the pop-up through a left-half cycle on screen, with no window or permission needed. Quit it from the menu bar afterwards.
+- `... --render-popup <folder>` writes PNGs of the pop-up content for several snaps and exits.

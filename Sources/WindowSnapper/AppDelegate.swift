@@ -4,6 +4,7 @@ import ServiceManagement
 
 final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let mover = WindowMover()
+    private lazy var popup = SnapPopup()
     private var statusItem: NSStatusItem!
     private var takenShortcuts: [SnapAction] = []
     private var trustTimer: Timer?
@@ -17,8 +18,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.delegate = self
         statusItem.menu = menu
 
+        if let i = CommandLine.arguments.firstIndex(of: "--render-popup"), i + 1 < CommandLine.arguments.count {
+            PopupSnapshots.write(to: URL(fileURLWithPath: CommandLine.arguments[i + 1]))
+            NSApp.terminate(nil)
+            return
+        }
+        if CommandLine.arguments.contains("--demo-popup") {
+            runPopupDemo()
+            return
+        }
         registerShortcuts()
         askForAccessibilityIfNeeded()
+    }
+
+    /// Steps the pop-up through a left-half cycle on the main screen, with no
+    /// window and no permission needed. For working on the pop-up's design.
+    private func runPopupDemo() {
+        guard let screen = NSScreen.main else { return }
+        popup.holdOpen = true
+        let area = WindowMover.visibleArea(of: screen)
+        for step in 0..<4 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5 + Double(step) * 1.5) { [self] in
+                let s = step % SnapAction.cycle.count
+                let frame = SnapAction.leftHalf.frame(in: area, step: s, current: area)
+                popup.show(.init(action: .leftHalf, step: s, frame: frame, area: area))
+            }
+        }
     }
 
     // MARK: Shortcuts
@@ -27,7 +52,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         takenShortcuts = SnapAction.allCases.filter { action in
             let s = action.shortcut
             let ok = HotKeyCenter.shared.register(keyCode: s.key.carbonKeyCode, modifiers: s.modifiers.carbonModifiers) { [weak self] in
-                self?.mover.perform(action)
+                self?.snap(action)
             }
             return !ok
         }
@@ -96,7 +121,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @objc private func snapFromMenu(_ sender: NSMenuItem) {
         guard let action = sender.representedObject as? SnapAction else { return }
-        mover.perform(action)
+        snap(action)
+    }
+
+    private func snap(_ action: SnapAction) {
+        if let result = mover.perform(action) {
+            popup.show(result)
+        }
     }
 
     @objc private func toggleOpenAtLogin() {

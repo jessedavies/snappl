@@ -17,11 +17,22 @@ final class WindowMover {
     /// Frames from before a window was first snapped, for Restore.
     private var originals: [(window: AXUIElement, frame: CGRect)] = []
 
-    func perform(_ action: SnapAction) {
+    /// What a snap did, for the pop-up.
+    struct Result {
+        let action: SnapAction
+        let step: Int
+        /// The window's frame after the move, and the usable area of its screen,
+        /// both in Accessibility coordinates.
+        let frame: CGRect
+        let area: CGRect
+    }
+
+    @discardableResult
+    func perform(_ action: SnapAction) -> Result? {
         guard AXIsProcessTrusted(),
               let (app, window) = focusedWindow(),
               let current = frame(of: window)
-        else { NSSound.beep(); return }
+        else { NSSound.beep(); return nil }
 
         let repeating = action == lastAction
             && lastWindow.map { CFEqual($0, window) } == true
@@ -31,10 +42,10 @@ final class WindowMover {
         let target: CGRect
         switch action {
         case .restore:
-            guard let index = originals.firstIndex(where: { CFEqual($0.window, window) }) else { NSSound.beep(); return }
+            guard let index = originals.firstIndex(where: { CFEqual($0.window, window) }) else { NSSound.beep(); return nil }
             target = originals.remove(at: index).frame
         case .nextDisplay, .previousDisplay:
-            guard let moved = frameOnOtherDisplay(current, forward: action == .nextDisplay) else { NSSound.beep(); return }
+            guard let moved = frameOnOtherDisplay(current, forward: action == .nextDisplay) else { NSSound.beep(); return nil }
             rememberOriginal(window, current)
             target = moved
         default:
@@ -46,7 +57,10 @@ final class WindowMover {
         setFrame(target, of: window, in: app)
         lastAction = action
         lastWindow = window
-        lastFrame = frame(of: window) ?? target // read back: some apps round to their own grid
+        let landed = frame(of: window) ?? target // read back: some apps round to their own grid
+        lastFrame = landed
+        return Result(action: action, step: step, frame: landed,
+                      area: Self.visibleArea(of: Self.screen(containing: landed)))
     }
 
     // MARK: Restore bookkeeping

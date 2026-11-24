@@ -35,6 +35,33 @@ enum SnapAction: CaseIterable {
         }
     }
 
+    /// The name shown in the pop-up for this step of the cycle.
+    func popupLabel(step: Int) -> String {
+        let s = step % SnapAction.cycle.count
+        switch self {
+        case .leftHalf, .rightHalf, .topHalf, .bottomHalf:
+            let side = title.replacingOccurrences(of: " Half", with: "")
+            return ["\(side) half", "\(side) two thirds", "\(side) third"][s]
+        case .topLeft, .topRight, .bottomLeft, .bottomRight:
+            let corner = String(title.prefix(1)) + title.dropFirst().lowercased()
+            return [corner, "\(corner) · ⅔", "\(corner) · ⅓"][s]
+        case .nextDisplay: return "Next display"
+        case .previousDisplay: return "Previous display"
+        default: return title
+        }
+    }
+
+    /// Which way the cycle grows, so the pop-up can draw ⅓ ½ ⅔ tick marks.
+    enum CycleAxis { case none, width, height }
+
+    var cycleAxis: CycleAxis {
+        switch self {
+        case .topHalf, .bottomHalf: .height
+        case .leftHalf, .rightHalf, .topLeft, .topRight, .bottomLeft, .bottomRight: .width
+        default: .none
+        }
+    }
+
     // MARK: Shortcuts (Spectacle defaults)
 
     enum Key { case left, right, up, down, f, c, z }
