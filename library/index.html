@@ -89,6 +89,13 @@
       code: () => 'TimelineView(.animation(minimumInterval: 1/30, paused: reduceMotion)) { … }\n  .frame(width: 600, height: 740)   // full window before\n  .drawingGroup()                   // or the blobs clip',
       native: { file: SWIFT + 'SettingsWindow.swift', view: 'PaintedBackground', notes: 'Blobs drift on 17–31 s sine loops; still under Reduce Motion.' } },
 
+    { id: 'appearance', group: 'Foundations', name: 'Appearance', status: 'proposed', stage: 'none',
+      desc: 'Light is built. Dark, “the gallery after hours”, is proposed: dimmed painting, smoky glass, off-white ink. Follows the system, with an override in Settings.',
+      custom: (env) => `<div style="display:flex;flex-wrap:wrap;gap:16px">${['light', 'dark'].map((m) => `<div class="theme-${m}" style="flex:1 1 300px;min-width:0">${P.painted(`<div style="padding:22px;display:flex;flex-direction:column;gap:12px;align-items:center">
+          <div class="sp-glass sp-list" style="width:100%;max-width:330px">${P.shortcutRow('leftHalf', 'rest')}${P.shortcutRow('rightHalf', 'hover')}${P.shortcutRow('topHalf', 'recording')}</div>
+          <div style="display:flex;gap:12px;align-items:center">${P.popup('leftHalf', 1, env.cycling !== false)}<div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">${P.tabs('Shortcuts')}${P.switchEl(true)}${P.switchEl(false)}${P.pill('Restore defaults')}${P.wallLabel(P.PAINTINGS[env.painting || 'sunny-day'][0])}</div></div>
+          <b style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)">${m}</b></div>`, 'border-radius:14px')}</div>`).join('')}</div>`,
+      native: { file: SWIFT + 'SettingsWindow.swift, SnapPopup.swift', notes: 'Today both force NSAppearance(.aqua). Dark needs Palette colours per appearance and the forced light appearance removed.' } },
     // Icons
     { id: 'glyph', group: 'Icons', name: 'Snap glyph', desc: 'One 16 × 12 icon grid for every action: the screen, with the window’s region filled.', stage: 'light',
       props: { action: titles, size: ['16 × 12', '32 × 24'] }, matrix: ['action'],

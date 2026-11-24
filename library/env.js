@@ -2,6 +2,7 @@
 import { PAINTINGS } from './pieces.js';
 
 export const CONTROLS = [
+  { key: 'appearance', label: 'Appearance', type: 'seg', default: 'light', options: [['light', 'Light'], ['dark', 'Dark'], ['system', 'System']] },
   { key: 'painting', label: 'Painting', type: 'select', default: 'sunny-day', options: Object.entries(PAINTINGS).map(([k, [t]]) => [k, t]) },
   { key: 'glass', label: 'Glass', type: 'range', min: 0.1, max: 0.7, step: 0.02, default: 0.32 },
   { key: 'wash', label: 'Wash', type: 'range', min: 0, max: 0.6, step: 0.05, default: 0.2 },
@@ -18,4 +19,6 @@ export function applyEnv(env, doc = document) {
   root.classList.toggle('blobs-still', env.blobs === 'still');
   root.classList.toggle('blobs-off', env.blobs === 'off');
   root.classList.toggle('reduce-motion', !!env.reduceMotion);
+  const dark = env.appearance === 'dark' || (env.appearance === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+  root.classList.toggle('theme-dark', dark);
 }

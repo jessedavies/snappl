@@ -157,13 +157,13 @@ export function menuOnDesktop(state = 'normal') {
 
 export function firstRun(step = 'ask', pressed = 0) {
   const sheet = step === 'ask'
-    ? `<div style="width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,0.8);display:flex;align-items:center;justify-content:center">${glyph([0, 0, 50, 100], 1.5)}</div>
+    ? `<div class="sp-tile" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center">${glyph([0, 0, 50, 100], 1.5)}</div>
        <div><b style="display:block;font-size:24px;line-height:29px;letter-spacing:-0.4px;margin-bottom:8px">Let Snappl move your windows</b>
        <p style="margin:0;font-size:14px;line-height:22px;color:var(--ink-2)">macOS asks before any app can move another app’s windows. Snappl only moves and resizes them. It never reads what’s inside.</p></div>
        <div style="display:flex;justify-content:space-between;align-items:center"><small style="color:var(--ink-3);font-size:12px">Waiting for access</small>${inkButton('Open Accessibility Settings', true)}</div>`
     : `<div><small style="font-size:12px;font-weight:500;color:var(--ink-2)">✓ Access granted</small><b style="display:block;font-size:24px;line-height:29px;letter-spacing:-0.4px;margin:8px 0">Now try it</b>
        <p style="margin:0;font-size:14px;line-height:22px;color:var(--ink-2)">Once for half. Again for two thirds, again for a third.</p></div>
-       <div style="display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-radius:16px;background:rgba(255,255,255,0.35)">${keycaps('⌥⌘←', { lg: true, pressed: pressed > 0 })}
+       <div class="sp-well" style="display:flex;justify-content:space-between;align-items:center;padding:18px 20px">${keycaps('⌥⌘←', { lg: true, pressed: pressed > 0 })}
          <span style="display:flex;align-items:center;gap:14px"><b style="font-size:13px">${pressed ? popupLabel(byId.leftHalf, pressed - 1).replace('Left ', '').replace(/^./, (c) => c.toUpperCase()) : 'Full screen'}</b>${miniDisplay(pressed ? snapRegion(byId.leftHalf, pressed - 1) : [0, 0, 1, 1])}</span></div>
        ${settingRow('Show icon in menu bar', '', switchEl(true))}${settingRow('Open at login', '', switchEl(true))}
        <div style="display:flex;justify-content:flex-end">${inkButton('Done')}</div>`;
