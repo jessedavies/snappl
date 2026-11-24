@@ -24,10 +24,11 @@ enum Theme {
     /// Dark: elevation comes from light, so a bright rim on top fading out below.
     static let glassEdgeTop = dynamic(light: rgb(255, 255, 255, 0.65), dark: rgb(255, 255, 255, 0.24))
     static let glassEdgeBottom = dynamic(light: rgb(255, 255, 255, 0.65), dark: rgb(255, 255, 255, 0.04))
-    /// Light: two soft ink shadows. Dark: a tight black shadow for separation,
-    /// and the wide one turns into a faint light glow (shadows vanish on dark).
-    static let shadowNear = dynamic(light: rgb(29, 35, 43, 0.07), dark: rgb(0, 0, 0, 0.32))
-    static let shadowFar = dynamic(light: rgb(29, 35, 43, 0.08), dark: rgb(255, 255, 255, 0.035))
+    /// Light: two soft ink shadows. Dark: elevation comes from the lit top edge
+    /// and the glass's density; only a light, tight shadow stays, and no wide one
+    /// (a white glow lit up the gaps between cards into a haze).
+    static let shadowNear = dynamic(light: rgb(29, 35, 43, 0.07), dark: rgb(0, 0, 0, 0.18))
+    static let shadowFar = dynamic(light: rgb(29, 35, 43, 0.08), dark: rgb(0, 0, 0, 0))
     static let keycap = dynamic(light: rgb(255, 255, 255, 0.72), dark: rgb(255, 255, 255, 0.1))
     static let field = dynamic(light: rgb(255, 255, 255, 0.9), dark: rgb(255, 255, 255, 0.08))
     static let tabSelected = dynamic(light: rgb(255, 255, 255, 0.92), dark: rgb(255, 255, 255, 0.16))

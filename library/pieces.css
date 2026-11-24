@@ -78,9 +78,9 @@
   --switch-off: rgba(255, 255, 255, 0.2);
   --shadow-rgb: 0, 0, 0;
   --shadow-a: 2.2;
-  /* Elevation. Dark: lit from above. A bright top rim fading down, a tight black
-     shadow for separation, and the wide shadow becomes a faint glow. */
-  --glass-lift: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 0 0 0.75px rgba(255, 255, 255, 0.05), 0 6px 16px rgba(0, 0, 0, 0.32), 0 24px 56px rgba(255, 255, 255, 0.035);
+  /* Elevation. Dark: lit from above. A bright top rim fading down and a light,
+     tight shadow; no wide shadow or glow (it hazed the gaps between cards). */
+  --glass-lift: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 0 0 0.75px rgba(255, 255, 255, 0.05), 0 6px 16px rgba(0, 0, 0, 0.18);
   --wash-rgb: 12, 15, 21;
   --wash-extra: 0.3;
   --painting-filter: contrast(0.95) brightness(0.62) saturate(0.85);
