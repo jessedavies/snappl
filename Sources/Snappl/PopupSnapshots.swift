@@ -15,19 +15,22 @@ enum PopupSnapshots {
             ("centre", .centre, 0),
         ]
         for (name, action, step) in cases {
+          for dark in [false, true] {
             let current = CGRect(x: 300, y: 200, width: 1000, height: 640)
             let frame = action.frame(in: area, step: step, current: current)
             let model = PopupModel()
             model.update(with: .init(action: action, step: step, frame: frame, area: area))
             let view = PopupView(model: model)
-                .background(RoundedRectangle(cornerRadius: 28).fill(Color(white: 0.9)))
+                .background(RoundedRectangle(cornerRadius: 28).fill(dark ? Color(white: 0.2) : Color(white: 0.9)))
                 .padding(24)
-                .background(Color(red: 0.78, green: 0.76, blue: 0.72))
+                .background(dark ? Color(red: 0.2, green: 0.2, blue: 0.24) : Color(red: 0.78, green: 0.76, blue: 0.72))
+                .environment(\.colorScheme, dark ? .dark : .light)
             let renderer = ImageRenderer(content: view)
             renderer.scale = 2
             guard let image = renderer.cgImage else { continue }
             let rep = NSBitmapImageRep(cgImage: image)
-            try? rep.representation(using: .png, properties: [:])?.write(to: folder.appendingPathComponent("\(name).png"))
+            try? rep.representation(using: .png, properties: [:])?.write(to: folder.appendingPathComponent("\(name)\(dark ? "-dark" : "").png"))
+          }
         }
     }
 }

@@ -1,7 +1,7 @@
 /* Snappl pieces, redrawn in HTML from the Swift code. Values come from
    Sources/Snappl (Palette, Glass, SnapPopup). The toolbar sets --glass, --wash
    and --painting on :root, and .theme-dark for the night palette. Prefix: sp-.
-   Light is built; dark is a proposal (see the "Appearance" spec). */
+   Both themes are built; Theme.swift holds the same values. */
 
 :root, .theme-light {
   /* Ink: text, glyphs, outlines */
@@ -14,6 +14,7 @@
   --ink-solid: rgba(29, 35, 43, 0.88);
   --on-ink: #ffffff;
   --knob-on: #ffffff;
+  --switch-on: rgba(29, 35, 43, 0.88);
   /* Surfaces (glass and the things on it) */
   --glass-rgb: 255, 255, 255;
   --glass: 0.32;             /* SwiftUI tint over .ultraThinMaterial */
@@ -52,7 +53,7 @@
   --serif: "New York", "Iowan Old Style", Georgia, serif;
 }
 
-/* ---------- Dark: the gallery after hours (proposed) ---------- */
+/* ---------- Dark: the gallery after hours (Theme.swift) ---------- */
 :root.theme-dark, .theme-dark {
   --ink: #e8ebef;
   --ink-2: #bdc4cd;
@@ -61,7 +62,8 @@
   --ink-fill: #dfe3e8;
   --ink-solid: rgba(232, 235, 239, 0.9);
   --on-ink: #1d232b;
-  --knob-on: #1d232b;
+  --knob-on: #ffffff;
+  --switch-on: rgb(122, 138, 160);   /* slate, so the system's white knob shows */
   --glass-rgb: 24, 28, 35;
   --glass-edge: rgba(255, 255, 255, 0.12);
   --key: rgba(255, 255, 255, 0.1);
@@ -124,7 +126,7 @@
 /* ---------- Switch (system control, tinted ink) ---------- */
 .sp-switch { position: relative; width: 32px; height: 20px; flex: none; border-radius: 10px; background: var(--switch-off); }
 .sp-switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); transition: left 240ms var(--ease); }
-.sp-switch.on { background: var(--ink-solid); }
+.sp-switch.on { background: var(--switch-on); }
 .sp-switch.on::after { left: 14px; background: var(--knob-on); }
 
 /* ---------- Tabs ---------- */

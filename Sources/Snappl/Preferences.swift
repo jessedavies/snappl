@@ -10,6 +10,7 @@ final class Preferences: ObservableObject {
         static let cycle = "cycleSizes"
         static let popup = "showPopup"
         static let shortcuts = "shortcuts"
+        static let appearance = "appearance"
     }
 
     /// Repeat presses step ½ → ⅔ → ⅓.
@@ -17,6 +18,9 @@ final class Preferences: ObservableObject {
 
     /// Show the glass pop-up after each snap.
     @Published var showPopup: Bool { didSet { defaults.set(showPopup, forKey: Key.popup) } }
+
+    /// Light, dark, or follow the system (the default).
+    @Published var appearance: AppearanceMode { didSet { defaults.set(appearance.rawValue, forKey: Key.appearance) } }
 
     /// Current shortcuts. An action with no entry has no shortcut.
     @Published private(set) var shortcuts: [SnapAction: Shortcut]
@@ -26,6 +30,7 @@ final class Preferences: ObservableObject {
         defaults.register(defaults: [Key.cycle: true, Key.popup: true])
         cycleSizes = defaults.bool(forKey: Key.cycle)
         showPopup = defaults.bool(forKey: Key.popup)
+        appearance = defaults.string(forKey: Key.appearance).flatMap(AppearanceMode.init(rawValue:)) ?? .system
         if let data = defaults.data(forKey: Key.shortcuts),
            let saved = try? JSONDecoder().decode([String: Shortcut].self, from: data) {
             shortcuts = Dictionary(uniqueKeysWithValues: saved.compactMap { k, v in SnapAction(rawValue: k).map { ($0, v) } })

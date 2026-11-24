@@ -37,6 +37,7 @@ export function glyph(region, scale = 1) {
 
 export const keycaps = (keys, opts = {}) => `<span class="sp-keys" style="${opts.lg ? 'gap:6px' : ''}">${[...keys].map((k) => `<span class="sp-key ${opts.lg ? 'lg' : ''} ${opts.pressed ? 'pressed' : ''}">${k}</span>`).join('')}</span>`;
 export const switchEl = (on) => `<span class="sp-switch ${on ? 'on' : ''}" role="switch" aria-checked="${on}"></span>`;
+export const appearanceSeg = (selected) => `<span class="sp-tabs">${['System', 'Light', 'Dark'].map((t) => `<span class="sp-tab ${t === selected ? 'on' : ''}">${t}</span>`).join('')}</span>`;
 export const tabs = (selected) => `<span class="sp-tabs">${['Shortcuts', 'General'].map((t) => `<span class="sp-tab ${t === selected ? 'on' : ''}">${t}</span>`).join('')}</span>`;
 export const pill = (label, disabled) => `<span class="sp-pill ${disabled ? 'disabled' : ''}">${label}</span>`;
 export const inkButton = (label, lg) => `<span class="sp-ink ${lg ? 'lg' : ''}">${label}</span>`;
@@ -130,7 +131,7 @@ export function settingsWindow({ pane = 'Shortcuts', recording = null, hover = n
     body = SETTINGS_SECTIONS.map((s) => `<div class="sp-glass sp-list">${s.map((id) => shortcutRow(id, state(id))).join('')}</div>`).join('')
       + `<div class="sp-glass">${settingRow('Cycle sizes on repeat', 'Press a half again for ⅔, then ⅓', switchEl(cycling))}</div>`;
   } else {
-    body = `<div class="sp-glass" style="padding:4px 0">${settingRow('Open at login', '', switchEl(login))}<div class="sp-divider"></div>
+    body = `<div class="sp-glass" style="padding:4px 0">${settingRow('Appearance', 'Follows your Mac unless you pick one', appearanceSeg('System'))}<div class="sp-divider"></div>${settingRow('Open at login', '', switchEl(login))}<div class="sp-divider"></div>
       ${settingRow('Show snap pop-up', 'The glass tile that shows where the window went', switchEl(showPopup))}<div class="sp-divider"></div>
       ${settingRow('Accessibility', trusted ? 'Allowed. Snappl can move windows.' : 'Needed to move other apps’ windows', trusted ? '' : pill('Open Settings'))}</div>`;
   }

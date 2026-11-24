@@ -59,7 +59,7 @@ Snaps stay clear of the menu bar and the Dock.
 
 - **Shortcuts:** click a shortcut's keys, then press the new combination. It needs ⌘, ⌥ or ⌃. Esc cancels; Delete clears it. Hover a row and click ✕ to remove a shortcut. **Restore Spectacle defaults** puts them all back.
 - **Cycle sizes on repeat:** switch off if you only want halves.
-- **General:** open at login, show or hide the snap pop-up, and check the Accessibility permission.
+- **General:** light or dark appearance (follows your Mac unless you pick one), open at login, show or hide the snap pop-up, and check the Accessibility permission.
 
 ## Uninstall
 

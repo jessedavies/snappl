@@ -26,7 +26,6 @@ final class SnapPopup {
         panel.hidesOnDeactivate = false
         panel.isReleasedWhenClosed = false
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
-        panel.appearance = NSAppearance(named: .aqua) // the design is light glass
 
         let glass = NSVisualEffectView()
         glass.material = .popover
@@ -47,6 +46,8 @@ final class SnapPopup {
     }
 
     func show(_ result: WindowMover.Result) {
+        // Follows the Appearance setting; the material and Theme colours resolve from it.
+        panel.appearance = Preferences.shared.appearance.nsAppearance
         let wasVisible = panel.isVisible && panel.alphaValue > 0.01
         let reduceMotion = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
 
@@ -136,9 +137,9 @@ final class PopupModel: ObservableObject {
     }
 }
 
-private let ink = Color(red: 29 / 255, green: 35 / 255, blue: 43 / 255)
+private let ink = Theme.ink
 /// The ink at 88% over the light glass, as one opaque colour.
-private let inkFill = Color(red: 56 / 255, green: 61 / 255, blue: 68 / 255)
+private let inkFill = Theme.inkFill
 private let ease = Animation.timingCurve(0.32, 0.72, 0, 1, duration: 0.24)
 
 struct PopupView: View {
@@ -168,10 +169,10 @@ struct PopupView: View {
         .frame(width: 176)
         // Lightens the system glass toward the design. Circular corners to
         // match the panel's mask, which only clips the material, not this.
-        .background(RoundedRectangle(cornerRadius: 28, style: .circular).fill(Color.white.opacity(0.28)))
+        .background(RoundedRectangle(cornerRadius: 28, style: .circular).fill(Theme.popupTint))
         .overlay(
             RoundedRectangle(cornerRadius: 28, style: .circular)
-                .strokeBorder(Color.white.opacity(0.65), lineWidth: 0.5)
+                .strokeBorder(Theme.glassEdge, lineWidth: 0.5)
         )
         .animation(ease, value: model.region)
         .animation(ease, value: model.step)

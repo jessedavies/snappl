@@ -1,5 +1,6 @@
 import AppKit
 import ApplicationServices
+import Combine
 import ServiceManagement
 import SwiftUI
 
@@ -8,6 +9,7 @@ import SwiftUI
 final class SettingsWindowController: NSObject, NSWindowDelegate {
     private let recorder: ShortcutRecorder
     private var window: NSWindow?
+    private var appearanceWatch: AnyCancellable?
 
     init(recorder: ShortcutRecorder) {
         self.recorder = recorder
@@ -28,7 +30,9 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
         window.isMovableByWindowBackground = true
-        window.appearance = NSAppearance(named: .aqua) // the design is light
+        // Follows the Appearance setting (System by default).
+        window.appearance = Preferences.shared.appearance.nsAppearance
+        appearanceWatch = Preferences.shared.$appearance.sink { [weak window] mode in window?.appearance = mode.nsAppearance }
         window.isReleasedWhenClosed = false
         window.delegate = self
         window.contentView = NSHostingView(rootView: SettingsView(prefs: .shared, recorder: recorder))
@@ -48,9 +52,9 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
 // MARK: - Palette
 
 private enum Palette {
-    static let ink = Color(red: 29 / 255, green: 35 / 255, blue: 43 / 255)
-    static let secondary = Color(red: 57 / 255, green: 65 / 255, blue: 75 / 255)
-    static let muted = Color(red: 72 / 255, green: 81 / 255, blue: 92 / 255)
+    static let ink = Theme.ink
+    static let secondary = Theme.secondary
+    static let muted = Theme.muted
 }
 
 /// Rendered snapshots can't draw system materials, so they swap in a flat tint.
@@ -77,16 +81,16 @@ private struct Glass: ViewModifier {
             .background {
                 ZStack {
                     if isSnapshot {
-                        shape.fill(Color.white.opacity(0.62))
+                        shape.fill(Theme.glassSnapshot)
                     } else {
                         shape.fill(.ultraThinMaterial)
-                        shape.fill(Color.white.opacity(0.32))
+                        shape.fill(Theme.glass)
                     }
                 }
             }
-            .overlay(shape.strokeBorder(Color.white.opacity(0.65), lineWidth: 0.5))
-            .shadow(color: Palette.ink.opacity(floating ? 0.07 : 0), radius: 12, y: 8)
-            .shadow(color: Palette.ink.opacity(floating ? 0.08 : 0), radius: 28, y: 24)
+            .overlay(shape.strokeBorder(Theme.glassEdge, lineWidth: 0.5))
+            .shadow(color: floating ? Theme.shadowNear : .clear, radius: 12, y: 8)
+            .shadow(color: floating ? Theme.shadowFar : .clear, radius: 28, y: 24)
     }
 }
 
@@ -133,7 +137,6 @@ struct SettingsView: View {
         }
         .frame(width: Self.size.width, height: Self.size.height)
         .foregroundStyle(Palette.ink)
-        .environment(\.colorScheme, .light)
         .onChange(of: tab) { _ in recorder.stop() }
     }
 
@@ -182,7 +185,7 @@ struct SettingsView: View {
                     .labelsHidden()
                     .toggleStyle(.switch)
                     .controlSize(.small)
-                    .tint(Palette.ink)
+                    .tint(Theme.switchTint)
             }
             .padding(EdgeInsets(top: 12, leading: 16, bottom: 12, trailing: 14))
             .glass()
@@ -225,7 +228,7 @@ private struct ShortcutRow: View {
                         .foregroundStyle(Palette.muted)
                         .padding(.horizontal, 10)
                         .frame(height: 24)
-                        .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.white.opacity(0.9)))
+                        .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Theme.field))
                         .overlay(RoundedRectangle(cornerRadius: 7, style: .continuous).strokeBorder(Palette.ink.opacity(0.85), lineWidth: 1.5))
                 }
                 .buttonStyle(.plain)
@@ -285,7 +288,7 @@ private struct Keycap: View {
             .font(.system(size: 11.5, weight: .medium))
             .padding(.horizontal, 5)
             .frame(minWidth: 22, minHeight: 22)
-            .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color.white.opacity(0.72)))
+            .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Theme.keycap))
             .overlay(RoundedRectangle(cornerRadius: 6, style: .continuous).strokeBorder(Palette.ink.opacity(0.12), lineWidth: 0.5))
             .shadow(color: Palette.ink.opacity(0.12), radius: 0, y: 1)
     }
@@ -300,9 +303,23 @@ private struct GeneralPane: View {
 
     var body: some View {
         VStack(spacing: 0) {
+            row("Appearance", detail: "Follows your Mac unless you pick one") {
+                HStack(spacing: 2) {
+                    ForEach(AppearanceMode.allCases) { mode in
+                        Button(mode.title) { prefs.appearance = mode }
+                            .buttonStyle(TabButtonStyle(selected: prefs.appearance == mode))
+                            .accessibilityAddTraits(prefs.appearance == mode ? .isSelected : [])
+                    }
+                }
+                .padding(3)
+                .glass(radius: 10, floating: false)
+                .accessibilityElement(children: .contain)
+                .accessibilityLabel("Appearance")
+            }
+            divider
             row("Open at login", detail: nil) {
                 Toggle("Open at login", isOn: $openAtLogin)
-                    .labelsHidden().toggleStyle(.switch).controlSize(.small).tint(Palette.ink)
+                    .labelsHidden().toggleStyle(.switch).controlSize(.small).tint(Theme.switchTint)
                     .onChange(of: openAtLogin) { on in
                         do {
                             if on { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() }
@@ -315,7 +332,7 @@ private struct GeneralPane: View {
             divider
             row("Show snap pop-up", detail: "The glass tile that shows where the window went") {
                 Toggle("Show snap pop-up", isOn: $prefs.showPopup)
-                    .labelsHidden().toggleStyle(.switch).controlSize(.small).tint(Palette.ink)
+                    .labelsHidden().toggleStyle(.switch).controlSize(.small).tint(Theme.switchTint)
             }
             divider
             row("Accessibility", detail: trusted ? "Allowed. Snappl can move windows." : "Needed to move other apps’ windows") {
@@ -363,7 +380,7 @@ private struct TabButtonStyle: ButtonStyle {
             .background {
                 if selected {
                     RoundedRectangle(cornerRadius: 7, style: .continuous)
-                        .fill(Color.white.opacity(0.92))
+                        .fill(Theme.tabSelected)
                         .shadow(color: Palette.ink.opacity(0.12), radius: 1.5, y: 1)
                 }
             }
@@ -407,6 +424,8 @@ private struct WallLabel: View {
 /// across x and y, so the pattern never visibly repeats). Still under Reduce Motion.
 private struct PaintedBackground: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
+    private var isDark: Bool { colorScheme == .dark }
 
     private static let painting: NSImage? = Bundle.main.url(forResource: "sunny-day", withExtension: "jpg")
         .flatMap(NSImage.init(contentsOf:))
@@ -421,20 +440,20 @@ private struct PaintedBackground: View {
     }
 
     private static let blobs: [Blob] = [
-        Blob(color: Color(red: 120 / 255, green: 165 / 255, blue: 215 / 255).opacity(0.55),
+        Blob(color: Theme.blobMist,
              size: CGSize(width: 420, height: 480), centre: CGPoint(x: -130, y: -170),
              reach: CGSize(width: 150, height: 130), periods: (23, 31), phase: 0),
-        Blob(color: Color(red: 232 / 255, green: 160 / 255, blue: 150 / 255).opacity(0.5),
+        Blob(color: Theme.blobRose,
              size: CGSize(width: 380, height: 440), centre: CGPoint(x: 150, y: 40),
              reach: CGSize(width: 140, height: 170), periods: (29, 19), phase: 2.1),
-        Blob(color: Color(red: 226 / 255, green: 204 / 255, blue: 140 / 255).opacity(0.5),
+        Blob(color: Theme.blobStraw,
              size: CGSize(width: 420, height: 400), centre: CGPoint(x: -20, y: 230),
              reach: CGSize(width: 170, height: 110), periods: (17, 27), phase: 4.2),
     ]
 
     var body: some View {
         ZStack {
-            Color(red: 0.9, green: 0.86, blue: 0.8)
+            Theme.ground
             if let painting = Self.painting {
                 Image(nsImage: painting)
                     .resizable()
@@ -442,10 +461,11 @@ private struct PaintedBackground: View {
                     .scaledToFill()
                     .frame(width: SettingsView.size.width, height: SettingsView.size.height)
                     .clipped()
-                    .contrast(0.9)
-                    .brightness(0.03)
+                    .contrast(isDark ? 0.95 : 0.9)
+                    .saturation(isDark ? 0.85 : 1)
+                    .brightness(isDark ? -0.28 : 0.03)   // after hours: dimmed
             }
-            Color.white.opacity(0.2)
+            Theme.wash
             TimelineView(.animation(minimumInterval: 1.0 / 30.0, paused: reduceMotion)) { context in
                 let t = reduceMotion ? 0 : context.date.timeIntervalSinceReferenceDate
                 ZStack {
@@ -488,11 +508,12 @@ enum SettingsSnapshots {
 
     static func write(to folder: URL, recorder: ShortcutRecorder, done: @escaping () -> Void) {
         try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        let shots: [(String, SettingsView.Tab, SnapAction?)] = [
+        let base: [(String, SettingsView.Tab, SnapAction?)] = [
             ("settings-shortcuts", .shortcuts, nil),
             ("settings-recording", .shortcuts, .topHalf),
             ("settings-general", .general, nil),
         ]
+        let shots = base.flatMap { s in [(s.0, s.1, s.2, NSAppearance.Name.aqua), (s.0 + "-dark", s.1, s.2, NSAppearance.Name.darkAqua)] }
         var remaining = shots.count
         for (i, shot) in shots.enumerated() {
             let shotRecorder = ShortcutRecorder { _ in }
@@ -501,7 +522,7 @@ enum SettingsSnapshots {
             let hosting = NSHostingView(rootView: view)
             let window = NSWindow(contentRect: NSRect(x: -20000 - i * 700, y: 0, width: 600, height: 740),
                                   styleMask: [.borderless], backing: .buffered, defer: false)
-            window.appearance = NSAppearance(named: .aqua)
+            window.appearance = NSAppearance(named: shot.3)
             window.contentView = hosting
             window.orderFrontRegardless()
             keepAlive.append(window)

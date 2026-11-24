@@ -89,13 +89,14 @@
       code: () => 'TimelineView(.animation(minimumInterval: 1/30, paused: reduceMotion)) { … }\n  .frame(width: 600, height: 740)   // full window before\n  .drawingGroup()                   // or the blobs clip',
       native: { file: SWIFT + 'SettingsWindow.swift', view: 'PaintedBackground', notes: 'Blobs drift on 17–31 s sine loops; still under Reduce Motion.' } },
 
-    { id: 'appearance', group: 'Foundations', name: 'Appearance', status: 'proposed', stage: 'none',
-      desc: 'Light is built. Dark, “the gallery after hours”, is proposed: dimmed painting, smoky glass, off-white ink. Follows the system, with an override in Settings.',
+    { id: 'appearance', group: 'Foundations', name: 'Appearance', stage: 'none',
+      desc: 'Light, and dark: “the gallery after hours”, with the painting dimmed, smoky glass and off-white ink. Follows the Mac unless Settings → General picks one.',
       custom: (env) => `<div style="display:flex;flex-wrap:wrap;gap:16px">${['light', 'dark'].map((m) => `<div class="theme-${m}" style="flex:1 1 300px;min-width:0">${P.painted(`<div style="padding:22px;display:flex;flex-direction:column;gap:12px;align-items:center">
           <div class="sp-glass sp-list" style="width:100%;max-width:330px">${P.shortcutRow('leftHalf', 'rest')}${P.shortcutRow('rightHalf', 'hover')}${P.shortcutRow('topHalf', 'recording')}</div>
           <div style="display:flex;gap:12px;align-items:center">${P.popup('leftHalf', 1, env.cycling !== false)}<div style="display:flex;flex-direction:column;gap:10px;align-items:flex-start">${P.tabs('Shortcuts')}${P.switchEl(true)}${P.switchEl(false)}${P.pill('Restore defaults')}${P.wallLabel(P.PAINTINGS[env.painting || 'sunny-day'][0])}</div></div>
           <b style="font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)">${m}</b></div>`, 'border-radius:14px')}</div>`).join('')}</div>`,
-      native: { file: SWIFT + 'SettingsWindow.swift, SnapPopup.swift', notes: 'Today both force NSAppearance(.aqua). Dark needs Palette colours per appearance and the forced light appearance removed.' } },
+      code: () => 'Theme.ink   // NSColor(name:) resolves light or dark per view\nwindow.appearance = prefs.appearance.nsAppearance   // nil = follow the Mac',
+      native: { file: SWIFT + 'Theme.swift', view: 'Theme, AppearanceMode', notes: 'The Settings window and the pop-up panel take their appearance from Preferences.appearance. Dark dims the painting (brightness −0.28) under a dark wash.' } },
     // Icons
     { id: 'glyph', group: 'Icons', name: 'Snap glyph', desc: 'One 16 × 12 icon grid for every action: the screen, with the window’s region filled.', stage: 'light',
       props: { action: titles, size: ['16 × 12', '32 × 24'] }, matrix: ['action'],
@@ -137,8 +138,9 @@
       code: ({ action }) => `ShortcutRow(action: .${idOf(action)}, shortcut: prefs.shortcuts[.${idOf(action)}],\n            recorder: recorder) { prefs.setShortcut(nil, for: .${idOf(action)}) }`,
       native: { file: SWIFT + 'SettingsWindow.swift', view: 'ShortcutRow', notes: 'Recording: ShortcutRecorder.swift. A press without ⌘/⌥/⌃ beeps and shows “Add ⌘, ⌥ or ⌃”. The ✕ sits in a fixed slot so keys don’t shift.' } },
     { id: 'setting-row', group: 'Components', name: 'Setting row', desc: 'A title, an optional line of detail, and its control.', stage: 'none',
-      props: { setting: ['Open at login', 'Show snap pop-up', 'Accessibility allowed', 'Accessibility needed'] },
+      props: { setting: ['Appearance', 'Open at login', 'Show snap pop-up', 'Accessibility allowed', 'Accessibility needed'] },
       render: ({ setting }) => onPainting(`<div class="sp-glass" style="width:400px">${{
+        'Appearance': P.settingRow('Appearance', 'Follows your Mac unless you pick one', P.appearanceSeg('System')),
         'Open at login': P.settingRow('Open at login', '', P.switchEl(true)),
         'Show snap pop-up': P.settingRow('Show snap pop-up', 'The glass tile that shows where the window went', P.switchEl(true)),
         'Accessibility allowed': P.settingRow('Accessibility', 'Allowed. Snappl can move windows.', ''),
@@ -167,7 +169,7 @@
 
     // App renders
     { id: 'renders', group: 'Screens', name: 'App renders', desc: 'Drawn by the app itself (library/render.sh). The renditions are checked against these.', stage: 'light',
-      custom: () => `<div class="renders">${[['settings-shortcuts', 300], ['settings-recording', 300], ['settings-general', 300], ['left-2-two-thirds', 200], ['maximise', 200]].map(([n, w]) => `<figure><img src="renders/${n}.png" width="${w}" alt="${n}"><figcaption>${n}</figcaption></figure>`).join('')}</div><p class="note">Glass is flat in these renders: the app’s snapshot mode can’t draw system materials. Switches look grey because the render window isn’t active.</p>` },
+      custom: () => `<div class="renders">${[['settings-shortcuts', 300], ['settings-shortcuts-dark', 300], ['settings-recording', 300], ['settings-recording-dark', 300], ['settings-general', 300], ['settings-general-dark', 300], ['left-2-two-thirds', 200], ['left-2-two-thirds-dark', 200], ['maximise-dark', 200]].map(([n, w]) => `<figure><img src="renders/${n}.png" width="${w}" alt="${n}"><figcaption>${n}</figcaption></figure>`).join('')}</div><p class="note">Glass is flat in these renders: the app’s snapshot mode can’t draw system materials. Switches look grey because the render window isn’t active.</p>` },
   ];
 
   const screens = [

@@ -9,7 +9,7 @@ BIN=build/Snappl.app/Contents/MacOS/Snappl
 for flag in --render-settings --render-popup; do
   "$BIN" $flag library/renders -shortcuts none &
   pid=$!
-  for i in {1..20}; do kill -0 $pid 2>/dev/null || break; sleep 0.5; done
+  for i in {1..60}; do kill -0 $pid 2>/dev/null || break; sleep 0.5; done
   kill $pid 2>/dev/null || true
 done
 ls library/renders
