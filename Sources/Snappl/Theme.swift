@@ -17,8 +17,8 @@ enum Theme {
     static let switchTint = dynamic(light: rgb(29, 35, 43), dark: rgb(122, 138, 160))
 
     // Glass and what sits on it
-    static let glass = dynamic(light: rgb(255, 255, 255, 0.32), dark: rgb(18, 21, 27, 0.55))   // dark: denser smoke, so cards hold against the painting
-    static let glassSnapshot = dynamic(light: rgb(255, 255, 255, 0.62), dark: rgb(26, 30, 37, 0.84))
+    static let glass = dynamic(light: rgb(255, 255, 255, 0.32), dark: rgb(14, 17, 22, 0.68))   // dark: dense smoke, so cards hold against the painting
+    static let glassSnapshot = dynamic(light: rgb(255, 255, 255, 0.62), dark: rgb(20, 23, 29, 0.9))
     static let glassEdge = dynamic(light: rgb(255, 255, 255, 0.65), dark: rgb(255, 255, 255, 0.1))
     /// The glass edge as a top-lit gradient. Light: an even white hairline.
     /// Dark: elevation comes from light, so a bright rim on top fading out below.

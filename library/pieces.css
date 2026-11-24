@@ -67,8 +67,8 @@
   --on-ink: #1d232b;
   --knob-on: #ffffff;
   --switch-on: rgb(122, 138, 160);   /* slate, so the system's white knob shows */
-  --glass-rgb: 18, 21, 27;
-  --glass-extra: 0.23;       /* 0.32 + 0.23 = Theme.glass dark (0.55) */
+  --glass-rgb: 14, 17, 22;
+  --glass-extra: 0.36;       /* 0.32 + 0.36 = Theme.glass dark (0.68) */
   --glass-edge: rgba(255, 255, 255, 0.1);
   --key: rgba(255, 255, 255, 0.1);
   --key-lg: rgba(255, 255, 255, 0.12);
