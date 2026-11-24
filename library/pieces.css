@@ -29,6 +29,7 @@
   --shadow-rgb: 29, 35, 43;
   --shadow-a: 1;
   /* Elevation. Light: white hairline, two soft ink shadows. */
+  --label-bg: rgba(255, 255, 255, 0.22);
   --glass-lift: inset 0 0 0 0.5px rgba(255, 255, 255, 0.65), 0 6px 16px rgba(29, 35, 43, 0.07), 0 24px 56px rgba(29, 35, 43, 0.08);
   /* The painting */
   --wash-rgb: 255, 255, 255;
@@ -68,6 +69,7 @@
   --knob-on: #ffffff;
   --switch-on: rgb(122, 138, 160);   /* slate, so the system's white knob shows */
   --glass-rgb: 14, 17, 22;
+  --label-bg: rgba(14, 17, 22, 0.3);
   --glass-extra: 0.36;       /* 0.32 + 0.36 = Theme.glass dark (0.68) */
   --glass-edge: rgba(255, 255, 255, 0.1);
   --key: rgba(255, 255, 255, 0.1);
@@ -164,7 +166,8 @@
 .sp-tile { background: var(--key-lg); border-radius: 12px; }
 
 /* ---------- Wall label ---------- */
-.sp-wall { display: inline-flex; flex-direction: column; gap: 1px; padding: 8px 12px; }
+/* A caption on the wall, not a control: faint backing, no edge, no shadow. */
+.sp-wall { display: inline-flex; flex-direction: column; gap: 1px; padding: 6px 10px; border-radius: 8px; background: var(--label-bg); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
 .sp-wall i { font: italic 14px/16px var(--serif); }
 .sp-wall span { font-size: 11px; line-height: 14px; color: var(--ink-3); }
 

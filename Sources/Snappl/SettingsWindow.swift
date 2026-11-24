@@ -411,9 +411,11 @@ private struct WallLabel: View {
             Text(title).font(.system(size: 14, design: .serif).italic())
             Text(artist).font(.system(size: 11)).foregroundStyle(Palette.muted)
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .glass(radius: 10, floating: false)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        // A caption on the wall, not a control: faint backing, no edge, no shadow.
+        .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Theme.wallLabel))
+        .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(.ultraThinMaterial).opacity(0.5))
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Painting: \(title), by \(artist)")
     }

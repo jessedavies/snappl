@@ -32,6 +32,9 @@ enum Theme {
     static let keycap = dynamic(light: rgb(255, 255, 255, 0.72), dark: rgb(255, 255, 255, 0.1))
     static let field = dynamic(light: rgb(255, 255, 255, 0.9), dark: rgb(255, 255, 255, 0.08))
     static let tabSelected = dynamic(light: rgb(255, 255, 255, 0.92), dark: rgb(255, 255, 255, 0.16))
+    /// The wall label's backing: just enough to read the caption over the
+    /// painting. No edge or shadow, so it reads as a caption, not a control.
+    static let wallLabel = dynamic(light: rgb(255, 255, 255, 0.22), dark: rgb(14, 17, 22, 0.3))
     static let popupTint = dynamic(light: rgb(255, 255, 255, 0.28), dark: rgb(24, 28, 35, 0.45))
 
     // The painting

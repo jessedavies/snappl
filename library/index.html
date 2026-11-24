@@ -147,7 +147,7 @@
         'Accessibility needed': P.settingRow('Accessibility', 'Needed to move other apps’ windows', P.pill('Open Settings')),
       }[setting]}</div>`, '20px'),
       native: { file: SWIFT + 'SettingsWindow.swift', view: 'GeneralPane.row(_:detail:accessory:)' } },
-    { id: 'wall-label', group: 'Components', name: 'Wall label', desc: 'Credits the painting behind a surface. The only serif.', stage: 'none',
+    { id: 'wall-label', group: 'Components', name: 'Wall label', desc: 'Credits the painting behind a surface: a caption, not a control, so no edge or shadow. The only serif.', stage: 'none',
       props: { painting: Object.keys(P.PAINTINGS) }, render: ({ painting }) => P.painted(`<div style="padding:24px 28px">${P.wallLabel(P.PAINTINGS[painting][0])}</div>`, 'border-radius:14px', painting),
       code: () => 'WallLabel(title: "Sunny Day", artist: "Clarice Beckett")', native: { file: SWIFT + 'SettingsWindow.swift', view: 'WallLabel' } },
     { id: 'menu', group: 'Components', name: 'Menu bar menu', desc: 'The cheat sheet: every snap, its glyph and current shortcut. Drawn by macOS.', stage: 'light',

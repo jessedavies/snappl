@@ -41,7 +41,7 @@ export const appearanceSeg = (selected) => `<span class="sp-tabs">${['System', '
 export const tabs = (selected) => `<span class="sp-tabs">${['Shortcuts', 'General'].map((t) => `<span class="sp-tab ${t === selected ? 'on' : ''}">${t}</span>`).join('')}</span>`;
 export const pill = (label, disabled) => `<span class="sp-pill ${disabled ? 'disabled' : ''}">${label}</span>`;
 export const inkButton = (label, lg) => `<span class="sp-ink ${lg ? 'lg' : ''}">${label}</span>`;
-export const wallLabel = (title, artist = 'Clarice Beckett') => `<span class="sp-chip sp-wall"><i>${title}</i><span>${artist}</span></span>`;
+export const wallLabel = (title, artist = 'Clarice Beckett') => `<span class="sp-wall"><i>${title}</i><span>${artist}</span></span>`;
 export const blobs = () => '<div class="sp-blobs" aria-hidden="true"><span class="sp-blob a"></span><span class="sp-blob b"></span><span class="sp-blob c"></span></div>';
 export const painted = (inner, style = '', painting) =>
   `<div class="sp sp-ground" style="${painting ? `--painting:url(${PAINTINGS[painting][1]});` : ''}${style}">${blobs()}<div class="sp-content">${inner}</div></div>`;
