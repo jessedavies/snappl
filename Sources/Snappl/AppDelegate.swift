@@ -34,7 +34,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         // Render modes exit before this, so they never add a menu bar icon.
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         statusItem.button?.image = SnapAction.leftHalf.glyph
-        statusItem.button?.setAccessibilityLabel("Window Snapper")
+        statusItem.button?.setAccessibilityLabel("Snappl")
 
         let menu = NSMenu()
         menu.delegate = self
@@ -75,7 +75,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             if !ok { takenShortcuts.append(action) }
         }
         if !takenShortcuts.isEmpty {
-            NSLog("Window Snapper: shortcuts already taken: \(takenShortcuts.map(\.title))")
+            NSLog("Snappl: shortcuts already taken: \(takenShortcuts.map(\.title))")
         }
     }
 
@@ -127,7 +127,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.removeAllItems()
 
         if !AXIsProcessTrusted() {
-            let item = NSMenuItem(title: "Allow Window Snapper in Accessibility…", action: #selector(openAccessibilitySettings), keyEquivalent: "")
+            let item = NSMenuItem(title: "Allow Snappl in Accessibility…", action: #selector(openAccessibilitySettings), keyEquivalent: "")
             item.target = self
             menu.addItem(item)
             menu.addItem(.separator())
@@ -156,7 +156,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         let settingsItem = NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: ",")
         settingsItem.target = self
         menu.addItem(settingsItem)
-        menu.addItem(NSMenuItem(title: "Quit Window Snapper", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quit Snappl", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
     }
 
     @objc private func snapFromMenu(_ sender: NSMenuItem) {

@@ -2,9 +2,9 @@
 import PackageDescription
 
 let package = Package(
-    name: "WindowSnapper",
+    name: "Snappl",
     platforms: [.macOS(.v13)],
     targets: [
-        .executableTarget(name: "WindowSnapper", path: "Sources/WindowSnapper")
+        .executableTarget(name: "Snappl", path: "Sources/Snappl")
     ]
 )

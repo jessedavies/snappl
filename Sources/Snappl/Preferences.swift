@@ -22,6 +22,7 @@ final class Preferences: ObservableObject {
     @Published private(set) var shortcuts: [SnapAction: Shortcut]
 
     private init() {
+        Self.migrateFromWindowSnapper(into: defaults)
         defaults.register(defaults: [Key.cycle: true, Key.popup: true])
         cycleSizes = defaults.bool(forKey: Key.cycle)
         showPopup = defaults.bool(forKey: Key.popup)
@@ -51,6 +52,18 @@ final class Preferences: ObservableObject {
     }
 
     var isUsingDefaults: Bool { shortcuts == SnapAction.spectacleDefaults }
+
+    /// The app was called Window Snapper (com.jessedavies.windowsnapper) until
+    /// 2026-11-24. Copy its settings across once, the first time Snappl runs.
+    private static func migrateFromWindowSnapper(into defaults: UserDefaults) {
+        let done = "migratedFromWindowSnapper"
+        guard !defaults.bool(forKey: done) else { return }
+        defaults.set(true, forKey: done)
+        guard let old = UserDefaults(suiteName: "com.jessedavies.windowsnapper") else { return }
+        for key in [Key.cycle, Key.popup, Key.shortcuts] where defaults.object(forKey: key) == nil {
+            if let value = old.object(forKey: key) { defaults.set(value, forKey: key) }
+        }
+    }
 
     private func save() {
         let plain = Dictionary(uniqueKeysWithValues: shortcuts.map { ($0.key.rawValue, $0.value) })

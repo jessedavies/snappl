@@ -24,7 +24,7 @@ final class SettingsWindowController: NSObject, NSWindowDelegate {
         let window = NSWindow(contentRect: NSRect(origin: .zero, size: SettingsView.size),
                               styleMask: [.titled, .closable, .fullSizeContentView],
                               backing: .buffered, defer: false)
-        window.title = "Window Snapper Settings"
+        window.title = "Snappl Settings"
         window.titleVisibility = .hidden
         window.titlebarAppearsTransparent = true
         window.isMovableByWindowBackground = true
@@ -318,7 +318,7 @@ private struct GeneralPane: View {
                     .labelsHidden().toggleStyle(.switch).controlSize(.small).tint(Palette.ink)
             }
             divider
-            row("Accessibility", detail: trusted ? "Allowed. Window Snapper can move windows." : "Needed to move other apps’ windows") {
+            row("Accessibility", detail: trusted ? "Allowed. Snappl can move windows." : "Needed to move other apps’ windows") {
                 if !trusted {
                     Button("Open Settings") {
                         NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!)
