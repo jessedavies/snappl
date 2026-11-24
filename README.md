@@ -12,7 +12,7 @@ Press **⌥⌘←** and the window fills the left half of the screen. Press it a
 
 ## Download
 
-1. Download the latest `Snappl.dmg` from [Releases](../../releases).
+1. Download the latest `Snappl-<version>.dmg` from [Releases](../../releases).
 2. Open it and drag **Snappl** into **Applications**.
 3. Open Snappl from Applications.
 

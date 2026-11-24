@@ -24,6 +24,16 @@ To avoid that, create a self-signed code-signing certificate named **Local Code 
 
 Public releases need an Apple Developer ID certificate and notarisation instead, so downloads open without a warning. That isn't set up yet.
 
+## Releasing
+
+1. Bump `CFBundleShortVersionString` (and `CFBundleVersion`) in `Resources/Info.plist`.
+2. Run `./scripts/release.sh`. It builds the app, stages it with an Applications shortcut and the painted background (`Resources/DMG/background.tiff`), has Finder lay out the window (macOS asks once to let your terminal control Finder), and writes `dist/Snappl-<version>.dmg`.
+3. Publish: `gh release create v<version> dist/Snappl-<version>.dmg --title "Snappl <version>" --notes "…"`.
+
+The background is drawn in `Resources/DMG/background.html` (640 × 400, icons at x 170 and 470, y 200). To change it, edit the page, render it at 1x and 2x with headless Chrome, and combine the two PNGs with `tiffutil -cathidpicheck bg-1.png bg-2.png -out Resources/DMG/background.tiff`.
+
+Releases are signed with the self-signed certificate, not by Apple, so Gatekeeper rejects them until the user clicks Open Anyway once. The stable signature still matters: Accessibility stays granted across updates.
+
 ## Layout
 
 | Path | What |
