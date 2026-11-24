@@ -1,58 +1,90 @@
-# Snappl
+<p align="center"><img src="docs/images/icon.png" width="128" alt="Snappl app icon"></p>
 
-A keyboard-first window snapper for macOS (formerly Window Snapper), replacing Spectacle. Menu bar only.
-Spectacle's default shortcuts; pressing a half again cycles ½ → ⅔ → ⅓.
+<h1 align="center">Snappl</h1>
 
-Design, decisions and research live in the Brain:
-`~/Development/Brain/Projects/Personal/window-snapper/`.
+<p align="center">Snap windows with the keyboard. Press again to cycle ½ → ⅔ → ⅓.<br>A small macOS menu bar app, made to replace Spectacle.</p>
 
-## Install
+---
 
-Needs only the Xcode Command Line Tools (Swift 6), not Xcode.
+Press **⌥⌘←** and the window fills the left half of the screen. Press it again for two thirds, and again for a third. The same works for every side and corner, and Snappl shows where the window went with a small pop-up in the middle of the screen.
+
+<p align="center"><img src="docs/images/popup-cycle.png" width="520" alt="The snap pop-up at each step: Left half, Left two thirds, Left third"></p>
+
+## Download
+
+1. Download the latest `Snappl.dmg` from [Releases](../../releases).
+2. Open it and drag **Snappl** into **Applications**.
+3. Open Snappl from Applications.
+
+Snappl isn't signed by Apple yet, so the first time you open it macOS says it can't verify the app. Go to **System Settings → Privacy & Security**, scroll down, and click **Open Anyway** next to the message about Snappl. You only need to do this once.
+
+Needs macOS 13 Ventura or later on an Apple silicon Mac. Intel Macs can [build from source](#build-from-source).
+
+## First run
+
+Snappl needs one permission: **Accessibility**, which is how macOS lets one app move another app's windows. Snappl only moves and resizes windows. It never reads what's inside them.
+
+1. When macOS asks, click **Open System Settings**. (Or open **System Settings → Privacy & Security → Accessibility** yourself.)
+2. Switch **Snappl** on.
+
+That's it. Snappl lives in the menu bar; click its icon for every snap and its shortcut, Settings and Quit.
+
+If you use Spectacle or Rectangle, quit it first. They listen for the same shortcuts.
+
+## Shortcuts
+
+Spectacle's defaults, so your hands already know them. Change any of them in **Settings** (⌘, from the menu).
+
+| Snap | Shortcut | Press again |
+| --- | --- | --- |
+| Left half | ⌥⌘← | ⅔, then ⅓ |
+| Right half | ⌥⌘→ | ⅔, then ⅓ |
+| Top half | ⌥⌘↑ | ⅔, then ⅓ |
+| Bottom half | ⌥⌘↓ | ⅔, then ⅓ |
+| Top left | ⌃⌘← | ⅔ wide, then ⅓ |
+| Top right | ⌃⌘→ | ⅔ wide, then ⅓ |
+| Bottom left | ⌃⇧⌘← | ⅔ wide, then ⅓ |
+| Bottom right | ⌃⇧⌘→ | ⅔ wide, then ⅓ |
+| Maximise | ⌥⌘F | |
+| Centre | ⌥⌘C | |
+| Next display | ⌃⌥⌘→ | |
+| Previous display | ⌃⌥⌘← | |
+| Restore (undo the first snap) | ⌥⌘Z | |
+
+Snaps stay clear of the menu bar and the Dock.
+
+## Settings
+
+<p align="center"><img src="docs/images/settings.png" width="420" alt="Snappl Settings: the Shortcuts pane over a Clarice Beckett painting"></p>
+
+- **Shortcuts:** click a shortcut's keys, then press the new combination. It needs ⌘, ⌥ or ⌃. Esc cancels; Delete clears it. Hover a row and click ✕ to remove a shortcut. **Restore Spectacle defaults** puts them all back.
+- **Cycle sizes on repeat:** switch off if you only want halves.
+- **General:** open at login, show or hide the snap pop-up, and check the Accessibility permission.
+
+## Uninstall
+
+Quit Snappl from its menu, drag it from Applications to the Bin, and remove it from **Privacy & Security → Accessibility**. Its settings live in `~/Library/Preferences/com.jessedavies.snappl.plist`.
+
+## Build from source
+
+You need macOS 13+ and Apple's Command Line Tools (`xcode-select --install`). Xcode itself isn't required.
 
 ```bash
-./scripts/install.sh
+git clone https://github.com/jessedavies/snappl.git
 ```
 
-Builds, signs, replaces `/Applications/Snappl.app` and opens it. After that it
-behaves like any app: Spotlight, Launchpad, and Open at Login in Settings.
-`./scripts/build-app.sh` builds to `build/Snappl.app` without installing.
+```bash
+cd snappl && ./scripts/install.sh
+```
 
-First run only: allow Snappl in System Settings → Privacy & Security →
-Accessibility, and quit Spectacle (it listens for the same shortcuts).
+That builds Snappl, installs it to `/Applications` and opens it. See [docs/DEVELOPING.md](docs/DEVELOPING.md) for signing, the project layout and the tools for working on the design.
 
-### Signing
+## Credits
 
-Builds are signed with a self-signed certificate called **Local Code Signing**
-in the login keychain (created 2026-11-24, valid 10 years). Because the
-signature is stable, macOS keeps the Accessibility grant across rebuilds.
-Keychain Access shows it as "not trusted"; that is expected and doesn't stop
-signing. Without it the build script falls back to ad hoc signing and the grant
-resets every build. To share Snappl with other people it would need a paid
-Apple Developer ID and notarisation instead.
+The paintings in Snappl's windows are by the Australian painter **Clarice Beckett** (1887–1935): *Sunny Day*, *Passing Trams*, *Moonrise, Beaumaris* and *Yarra Winter Night*. Her work is in the public domain. The images come from Wikimedia Commons.
 
-### Icon
+Snappl owes its shortcuts and its cycling to [Spectacle](https://github.com/eczarny/spectacle), which is no longer maintained. Snappl isn't affiliated with it.
 
-`python3 -I scripts/make-icon.py` rebuilds `Resources/AppIcon.icns` from
-`Resources/Icon/passing-trams.jpg` (needs Pillow).
+## Licence
 
-## Layout
-
-- `SnapAction.swift`: every action, its shortcut, its maths and its glyph
-- `WindowMover.swift`: the Accessibility calls, cycling, restore and displays
-- `HotKeys.swift`: global shortcuts through Carbon `RegisterEventHotKey`
-- `AppDelegate.swift`: the menu bar item and menu, and applying shortcuts
-- `Shortcut.swift`, `Preferences.swift`: saved shortcuts and settings (UserDefaults)
-- `SettingsWindow.swift`, `ShortcutRecorder.swift`: the painted Settings window and its recorder
-- `SnapPopup.swift`: the glass pop-up
-
-## Working on the snap pop-up
-
-Run `./scripts/build-app.sh` first; these use `build/Snappl.app`.
-
-- `"build/Snappl.app/Contents/MacOS/Snappl" --demo-popup` steps the pop-up through a left-half cycle on screen, with no window or permission needed. It adds a second menu bar icon while it runs; quit it from that icon afterwards.
-- `... --render-popup <folder>` writes PNGs of the pop-up content for several snaps and exits.
-- `... --render-settings <folder>` writes PNGs of Settings (both tabs, and recording) and exits.
-- `... --settings` launches with Settings open.
-
-The Settings painting is Clarice Beckett's *Sunny Day* (Beckett died 1935; public domain in Australia), from Wikimedia Commons at 650 px, which is soft at Retina size.
+[MIT](LICENSE).
