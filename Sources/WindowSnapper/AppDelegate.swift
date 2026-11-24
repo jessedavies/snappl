@@ -1,15 +1,37 @@
 import AppKit
 import ApplicationServices
+import Combine
 import ServiceManagement
 
 final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let mover = WindowMover()
+    private let prefs = Preferences.shared
     private lazy var popup = SnapPopup()
+    private lazy var settings = SettingsWindowController(recorder: recorder)
+    private lazy var recorder = ShortcutRecorder { [weak self] recording in
+        // Global shortcuts would swallow the keys being recorded, so they are
+        // switched off while the recorder listens.
+        self?.shortcutsPaused = recording
+        self?.applyShortcuts()
+    }
     private var statusItem: NSStatusItem!
     private var takenShortcuts: [SnapAction] = []
-    private var trustTimer: Timer?
+    private var shortcutsPaused = false
+    private var cancellables: Set<AnyCancellable> = []
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        if let i = CommandLine.arguments.firstIndex(of: "--render-popup"), i + 1 < CommandLine.arguments.count {
+            PopupSnapshots.write(to: URL(fileURLWithPath: CommandLine.arguments[i + 1]))
+            NSApp.terminate(nil)
+            return
+        }
+        if let i = CommandLine.arguments.firstIndex(of: "--render-settings"), i + 1 < CommandLine.arguments.count {
+            SettingsSnapshots.write(to: URL(fileURLWithPath: CommandLine.arguments[i + 1]), recorder: recorder) {
+                NSApp.terminate(nil)
+            }
+            return
+        }
+        // Render modes exit before this, so they never add a menu bar icon.
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         statusItem.button?.image = SnapAction.leftHalf.glyph
         statusItem.button?.setAccessibilityLabel("Window Snapper")
@@ -18,17 +40,49 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.delegate = self
         statusItem.menu = menu
 
-        if let i = CommandLine.arguments.firstIndex(of: "--render-popup"), i + 1 < CommandLine.arguments.count {
-            PopupSnapshots.write(to: URL(fileURLWithPath: CommandLine.arguments[i + 1]))
-            NSApp.terminate(nil)
-            return
-        }
         if CommandLine.arguments.contains("--demo-popup") {
             runPopupDemo()
             return
         }
-        registerShortcuts()
+
+        prefs.$shortcuts
+            .dropFirst()
+            .receive(on: RunLoop.main) // after the new value is stored
+            .sink { [weak self] _ in self?.applyShortcuts() }
+            .store(in: &cancellables)
+        applyShortcuts()
         askForAccessibilityIfNeeded()
+        if CommandLine.arguments.contains("--settings") { openSettings() }
+    }
+
+    /// Opening the app again (from Finder or Spotlight) shows Settings, since
+    /// there is no other window.
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        openSettings()
+        return false
+    }
+
+    // MARK: Shortcuts
+
+    private func applyShortcuts() {
+        HotKeyCenter.shared.unregisterAll()
+        takenShortcuts = []
+        guard !shortcutsPaused else { return }
+        for (action, shortcut) in prefs.shortcuts {
+            let ok = HotKeyCenter.shared.register(keyCode: shortcut.keyCode, modifiers: shortcut.carbonModifiers) { [weak self] in
+                self?.snap(action)
+            }
+            if !ok { takenShortcuts.append(action) }
+        }
+        if !takenShortcuts.isEmpty {
+            NSLog("Window Snapper: shortcuts already taken: \(takenShortcuts.map(\.title))")
+        }
+    }
+
+    private func snap(_ action: SnapAction) {
+        if let result = mover.perform(action), prefs.showPopup {
+            popup.show(result)
+        }
     }
 
     /// Steps the pop-up through a left-half cycle on the main screen, with no
@@ -46,28 +100,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
     }
 
-    // MARK: Shortcuts
-
-    private func registerShortcuts() {
-        takenShortcuts = SnapAction.allCases.filter { action in
-            let s = action.shortcut
-            let ok = HotKeyCenter.shared.register(keyCode: s.key.carbonKeyCode, modifiers: s.modifiers.carbonModifiers) { [weak self] in
-                self?.snap(action)
-            }
-            return !ok
-        }
-        if !takenShortcuts.isEmpty {
-            NSLog("Window Snapper: shortcuts already taken: \(takenShortcuts.map(\.title))")
-        }
-    }
-
     // MARK: Accessibility
+
+    private var trustTimer: Timer?
 
     private func askForAccessibilityIfNeeded() {
         guard !AXIsProcessTrusted() else { return }
         let prompt = kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String
         AXIsProcessTrustedWithOptions([prompt: true] as CFDictionary)
-        // Watch for the grant so the menu updates without a relaunch.
         trustTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
             if AXIsProcessTrusted() {
                 timer.invalidate()
@@ -93,7 +133,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             menu.addItem(.separator())
         }
         if !takenShortcuts.isEmpty {
-            let item = NSMenuItem(title: "Some shortcuts are taken. Quit Spectacle and relaunch.", action: nil, keyEquivalent: "")
+            let item = NSMenuItem(title: "Some shortcuts are taken by another app", action: nil, keyEquivalent: "")
             item.isEnabled = false
             menu.addItem(item)
             menu.addItem(.separator())
@@ -102,8 +142,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         for (i, section) in SnapAction.sections.enumerated() {
             if i > 0 { menu.addItem(.separator()) }
             for action in section {
-                let item = NSMenuItem(title: action.title, action: #selector(snapFromMenu(_:)), keyEquivalent: action.shortcut.key.keyEquivalent)
-                item.keyEquivalentModifierMask = action.shortcut.modifiers
+                let shortcut = prefs.shortcuts[action]
+                let item = NSMenuItem(title: action.title, action: #selector(snapFromMenu(_:)), keyEquivalent: shortcut?.keyEquivalent ?? "")
+                item.keyEquivalentModifierMask = shortcut?.modifiers ?? []
                 item.image = action.glyph
                 item.representedObject = action
                 item.target = self
@@ -112,10 +153,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
 
         menu.addItem(.separator())
-        let login = NSMenuItem(title: "Open at Login", action: #selector(toggleOpenAtLogin), keyEquivalent: "")
-        login.target = self
-        login.state = SMAppService.mainApp.status == .enabled ? .on : .off
-        menu.addItem(login)
+        let settingsItem = NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: ",")
+        settingsItem.target = self
+        menu.addItem(settingsItem)
         menu.addItem(NSMenuItem(title: "Quit Window Snapper", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
     }
 
@@ -124,22 +164,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         snap(action)
     }
 
-    private func snap(_ action: SnapAction) {
-        if let result = mover.perform(action) {
-            popup.show(result)
-        }
-    }
-
-    @objc private func toggleOpenAtLogin() {
-        do {
-            if SMAppService.mainApp.status == .enabled {
-                try SMAppService.mainApp.unregister()
-            } else {
-                try SMAppService.mainApp.register()
-            }
-        } catch {
-            NSLog("Window Snapper: open at login failed: \(error)")
-            NSSound.beep()
-        }
+    @objc private func openSettings() {
+        settings.show()
     }
 }

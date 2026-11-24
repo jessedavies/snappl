@@ -37,7 +37,7 @@ final class WindowMover {
         let repeating = action == lastAction
             && lastWindow.map { CFEqual($0, window) } == true
             && lastFrame.map { current.isClose(to: $0) } == true
-        step = (repeating && action.cycles) ? step + 1 : 0
+        step = (repeating && action.cycles && Preferences.shared.cycleSizes) ? step + 1 : 0
 
         let target: CGRect
         switch action {

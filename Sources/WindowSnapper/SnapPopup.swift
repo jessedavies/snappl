@@ -1,10 +1,10 @@
 import AppKit
 import SwiftUI
 
-/// The snap pop-up: a small glass tile centred on where the window landed.
+/// The snap pop-up: a small glass tile in the centre of the screen.
 /// It shows a mini display with the window's new region filled in, the name of
 /// the snap, and which step of the ½ → ⅔ → ⅓ cycle this is. A repeat press
-/// slides the tile along with the window instead of popping a new one.
+/// keeps the same tile up and animates the fill to the new size.
 final class SnapPopup {
     private let model = PopupModel()
     private let panel: NSPanel
@@ -13,7 +13,6 @@ final class SnapPopup {
     /// Keeps the tile up (for `--demo-popup`, when designing it).
     var holdOpen = false
 
-    private static let ease = CAMediaTimingFunction(controlPoints: 0.32, 0.72, 0, 1)
     private static let radius: CGFloat = 28
     private static let visibleFor: TimeInterval = 0.9
 
@@ -57,24 +56,15 @@ final class SnapPopup {
         transaction.disablesAnimations = !wasVisible || reduceMotion
         withTransaction(transaction) { model.update(with: result) }
 
-        let size = hosting.fittingSize
-        let frame = Self.panelFrame(size: size, centredOn: result.frame)
-
-        if wasVisible && !reduceMotion {
-            NSAnimationContext.runAnimationGroup { ctx in
-                ctx.duration = 0.24
-                ctx.timingFunction = Self.ease
-                panel.animator().setFrame(frame, display: true)
-                panel.animator().alphaValue = 1
-            }
-        } else {
-            panel.setFrame(frame, display: true)
-            if !wasVisible { panel.alphaValue = 0 }
-            panel.orderFrontRegardless()
-            NSAnimationContext.runAnimationGroup { ctx in
-                ctx.duration = 0.14
-                panel.animator().alphaValue = 1
-            }
+        // Always the centre of the screen the window ended up on. The tile stays
+        // put on repeat presses; only its contents change.
+        let frame = Self.panelFrame(size: hosting.fittingSize, centredOn: result.area)
+        panel.setFrame(frame, display: true)
+        if !wasVisible { panel.alphaValue = 0 }
+        panel.orderFrontRegardless()
+        NSAnimationContext.runAnimationGroup { ctx in
+            ctx.duration = 0.14
+            panel.animator().alphaValue = 1
         }
         panel.invalidateShadow()
         scheduleHide()
@@ -141,7 +131,7 @@ final class PopupModel: ObservableObject {
         region = CGRect(x: (f.minX - a.minX) / a.width, y: (f.minY - a.minY) / a.height,
                         width: f.width / a.width, height: f.height / a.height)
         label = r.action.popupLabel(step: r.step)
-        axis = r.action.cycleAxis
+        axis = Preferences.shared.cycleSizes ? r.action.cycleAxis : .none
         step = r.step % SnapAction.cycle.count
     }
 }

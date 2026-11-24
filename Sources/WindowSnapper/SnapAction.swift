@@ -2,7 +2,7 @@ import AppKit
 import Carbon
 
 /// Every snap, with Spectacle's default shortcut and the glyph used in the menu.
-enum SnapAction: CaseIterable {
+enum SnapAction: String, CaseIterable {
     case leftHalf, rightHalf, topHalf, bottomHalf
     case topLeft, topRight, bottomLeft, bottomRight
     case maximise, centre
@@ -62,34 +62,30 @@ enum SnapAction: CaseIterable {
         }
     }
 
-    // MARK: Shortcuts (Spectacle defaults)
+    // MARK: Shortcuts
 
-    enum Key { case left, right, up, down, f, c, z }
-
-    struct Shortcut {
-        let key: Key
-        let modifiers: NSEvent.ModifierFlags
-    }
-
-    var shortcut: Shortcut {
+    /// Spectacle's default shortcuts.
+    static let spectacleDefaults: [SnapAction: Shortcut] = {
         let optCmd: NSEvent.ModifierFlags = [.option, .command]
         let ctrlCmd: NSEvent.ModifierFlags = [.control, .command]
-        switch self {
-        case .leftHalf: return Shortcut(key: .left, modifiers: optCmd)
-        case .rightHalf: return Shortcut(key: .right, modifiers: optCmd)
-        case .topHalf: return Shortcut(key: .up, modifiers: optCmd)
-        case .bottomHalf: return Shortcut(key: .down, modifiers: optCmd)
-        case .topLeft: return Shortcut(key: .left, modifiers: ctrlCmd)
-        case .topRight: return Shortcut(key: .right, modifiers: ctrlCmd)
-        case .bottomLeft: return Shortcut(key: .left, modifiers: [.control, .shift, .command])
-        case .bottomRight: return Shortcut(key: .right, modifiers: [.control, .shift, .command])
-        case .maximise: return Shortcut(key: .f, modifiers: optCmd)
-        case .centre: return Shortcut(key: .c, modifiers: optCmd)
-        case .nextDisplay: return Shortcut(key: .right, modifiers: [.control, .option, .command])
-        case .previousDisplay: return Shortcut(key: .left, modifiers: [.control, .option, .command])
-        case .restore: return Shortcut(key: .z, modifiers: optCmd)
-        }
-    }
+        let ctrlShiftCmd: NSEvent.ModifierFlags = [.control, .shift, .command]
+        let ctrlOptCmd: NSEvent.ModifierFlags = [.control, .option, .command]
+        return [
+            .leftHalf: Shortcut(keyCode: kVK_LeftArrow, modifiers: optCmd, key: "←"),
+            .rightHalf: Shortcut(keyCode: kVK_RightArrow, modifiers: optCmd, key: "→"),
+            .topHalf: Shortcut(keyCode: kVK_UpArrow, modifiers: optCmd, key: "↑"),
+            .bottomHalf: Shortcut(keyCode: kVK_DownArrow, modifiers: optCmd, key: "↓"),
+            .topLeft: Shortcut(keyCode: kVK_LeftArrow, modifiers: ctrlCmd, key: "←"),
+            .topRight: Shortcut(keyCode: kVK_RightArrow, modifiers: ctrlCmd, key: "→"),
+            .bottomLeft: Shortcut(keyCode: kVK_LeftArrow, modifiers: ctrlShiftCmd, key: "←"),
+            .bottomRight: Shortcut(keyCode: kVK_RightArrow, modifiers: ctrlShiftCmd, key: "→"),
+            .maximise: Shortcut(keyCode: kVK_ANSI_F, modifiers: optCmd, key: "F"),
+            .centre: Shortcut(keyCode: kVK_ANSI_C, modifiers: optCmd, key: "C"),
+            .nextDisplay: Shortcut(keyCode: kVK_RightArrow, modifiers: ctrlOptCmd, key: "→"),
+            .previousDisplay: Shortcut(keyCode: kVK_LeftArrow, modifiers: ctrlOptCmd, key: "←"),
+            .restore: Shortcut(keyCode: kVK_ANSI_Z, modifiers: optCmd, key: "Z"),
+        ]
+    }()
 
     // MARK: Cycling
 
@@ -166,42 +162,5 @@ enum SnapAction: CaseIterable {
         }
         image.isTemplate = true
         return image
-    }
-}
-
-extension SnapAction.Key {
-    var carbonKeyCode: UInt32 {
-        switch self {
-        case .left: UInt32(kVK_LeftArrow)
-        case .right: UInt32(kVK_RightArrow)
-        case .up: UInt32(kVK_UpArrow)
-        case .down: UInt32(kVK_DownArrow)
-        case .f: UInt32(kVK_ANSI_F)
-        case .c: UInt32(kVK_ANSI_C)
-        case .z: UInt32(kVK_ANSI_Z)
-        }
-    }
-
-    var keyEquivalent: String {
-        switch self {
-        case .left: String(UnicodeScalar(NSLeftArrowFunctionKey)!)
-        case .right: String(UnicodeScalar(NSRightArrowFunctionKey)!)
-        case .up: String(UnicodeScalar(NSUpArrowFunctionKey)!)
-        case .down: String(UnicodeScalar(NSDownArrowFunctionKey)!)
-        case .f: "f"
-        case .c: "c"
-        case .z: "z"
-        }
-    }
-}
-
-extension NSEvent.ModifierFlags {
-    var carbonModifiers: UInt32 {
-        var m = 0
-        if contains(.command) { m |= cmdKey }
-        if contains(.option) { m |= optionKey }
-        if contains(.control) { m |= controlKey }
-        if contains(.shift) { m |= shiftKey }
-        return UInt32(m)
     }
 }
