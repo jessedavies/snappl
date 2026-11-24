@@ -172,7 +172,7 @@ struct PopupView: View {
         .background(RoundedRectangle(cornerRadius: 28, style: .circular).fill(Theme.popupTint))
         .overlay(
             RoundedRectangle(cornerRadius: 28, style: .circular)
-                .strokeBorder(Theme.glassEdge, lineWidth: 0.5)
+                .strokeBorder(LinearGradient(colors: [Theme.glassEdgeTop, Theme.glassEdgeBottom], startPoint: .top, endPoint: .bottom), lineWidth: 0.75)
         )
         .animation(ease, value: model.region)
         .animation(ease, value: model.step)

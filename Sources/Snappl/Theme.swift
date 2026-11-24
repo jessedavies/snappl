@@ -17,11 +17,17 @@ enum Theme {
     static let switchTint = dynamic(light: rgb(29, 35, 43), dark: rgb(122, 138, 160))
 
     // Glass and what sits on it
-    static let glass = dynamic(light: rgb(255, 255, 255, 0.32), dark: rgb(24, 28, 35, 0.32))
-    static let glassSnapshot = dynamic(light: rgb(255, 255, 255, 0.62), dark: rgb(34, 38, 46, 0.72))
-    static let glassEdge = dynamic(light: rgb(255, 255, 255, 0.65), dark: rgb(255, 255, 255, 0.12))
-    static let shadowNear = dynamic(light: rgb(29, 35, 43, 0.07), dark: rgb(0, 0, 0, 0.16))
-    static let shadowFar = dynamic(light: rgb(29, 35, 43, 0.08), dark: rgb(0, 0, 0, 0.2))
+    static let glass = dynamic(light: rgb(255, 255, 255, 0.32), dark: rgb(18, 21, 27, 0.55))   // dark: denser smoke, so cards hold against the painting
+    static let glassSnapshot = dynamic(light: rgb(255, 255, 255, 0.62), dark: rgb(26, 30, 37, 0.84))
+    static let glassEdge = dynamic(light: rgb(255, 255, 255, 0.65), dark: rgb(255, 255, 255, 0.1))
+    /// The glass edge as a top-lit gradient. Light: an even white hairline.
+    /// Dark: elevation comes from light, so a bright rim on top fading out below.
+    static let glassEdgeTop = dynamic(light: rgb(255, 255, 255, 0.65), dark: rgb(255, 255, 255, 0.24))
+    static let glassEdgeBottom = dynamic(light: rgb(255, 255, 255, 0.65), dark: rgb(255, 255, 255, 0.04))
+    /// Light: two soft ink shadows. Dark: a tight black shadow for separation,
+    /// and the wide one turns into a faint light glow (shadows vanish on dark).
+    static let shadowNear = dynamic(light: rgb(29, 35, 43, 0.07), dark: rgb(0, 0, 0, 0.32))
+    static let shadowFar = dynamic(light: rgb(29, 35, 43, 0.08), dark: rgb(255, 255, 255, 0.035))
     static let keycap = dynamic(light: rgb(255, 255, 255, 0.72), dark: rgb(255, 255, 255, 0.1))
     static let field = dynamic(light: rgb(255, 255, 255, 0.9), dark: rgb(255, 255, 255, 0.08))
     static let tabSelected = dynamic(light: rgb(255, 255, 255, 0.92), dark: rgb(255, 255, 255, 0.16))

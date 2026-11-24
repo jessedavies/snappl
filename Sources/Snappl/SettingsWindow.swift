@@ -88,8 +88,8 @@ private struct Glass: ViewModifier {
                     }
                 }
             }
-            .overlay(shape.strokeBorder(Theme.glassEdge, lineWidth: 0.5))
-            .shadow(color: floating ? Theme.shadowNear : .clear, radius: 12, y: 8)
+            .overlay(shape.strokeBorder(LinearGradient(colors: [Theme.glassEdgeTop, Theme.glassEdgeBottom], startPoint: .top, endPoint: .bottom), lineWidth: 0.75))
+            .shadow(color: floating ? Theme.shadowNear : .clear, radius: 8, y: 6)
             .shadow(color: floating ? Theme.shadowFar : .clear, radius: 28, y: 24)
     }
 }

@@ -17,7 +17,8 @@
   --switch-on: rgba(29, 35, 43, 0.88);
   /* Surfaces (glass and the things on it) */
   --glass-rgb: 255, 255, 255;
-  --glass: 0.32;             /* SwiftUI tint over .ultraThinMaterial */
+  --glass: 0.32;
+  --glass-extra: 0;          /* dark adds to the slider */             /* SwiftUI tint over .ultraThinMaterial */
   --glass-edge: rgba(255, 255, 255, 0.65);
   --key: rgba(255, 255, 255, 0.72);
   --key-lg: rgba(255, 255, 255, 0.8);
@@ -27,6 +28,8 @@
   --switch-off: rgba(29, 35, 43, 0.18);
   --shadow-rgb: 29, 35, 43;
   --shadow-a: 1;
+  /* Elevation. Light: white hairline, two soft ink shadows. */
+  --glass-lift: inset 0 0 0 0.5px rgba(255, 255, 255, 0.65), 0 6px 16px rgba(29, 35, 43, 0.07), 0 24px 56px rgba(29, 35, 43, 0.08);
   /* The painting */
   --wash-rgb: 255, 255, 255;
   --wash: 0.2;
@@ -64,8 +67,9 @@
   --on-ink: #1d232b;
   --knob-on: #ffffff;
   --switch-on: rgb(122, 138, 160);   /* slate, so the system's white knob shows */
-  --glass-rgb: 24, 28, 35;
-  --glass-edge: rgba(255, 255, 255, 0.12);
+  --glass-rgb: 18, 21, 27;
+  --glass-extra: 0.23;       /* 0.32 + 0.23 = Theme.glass dark (0.55) */
+  --glass-edge: rgba(255, 255, 255, 0.1);
   --key: rgba(255, 255, 255, 0.1);
   --key-lg: rgba(255, 255, 255, 0.12);
   --field: rgba(255, 255, 255, 0.08);
@@ -74,6 +78,9 @@
   --switch-off: rgba(255, 255, 255, 0.2);
   --shadow-rgb: 0, 0, 0;
   --shadow-a: 2.2;
+  /* Elevation. Dark: lit from above. A bright top rim fading down, a tight black
+     shadow for separation, and the wide shadow becomes a faint glow. */
+  --glass-lift: inset 0 1px 0 rgba(255, 255, 255, 0.2), inset 0 0 0 0.75px rgba(255, 255, 255, 0.05), 0 6px 16px rgba(0, 0, 0, 0.32), 0 24px 56px rgba(255, 255, 255, 0.035);
   --wash-rgb: 12, 15, 21;
   --wash-extra: 0.3;
   --painting-filter: contrast(0.95) brightness(0.62) saturate(0.85);
@@ -111,8 +118,8 @@
 :root.reduce-motion * { transition-duration: 0s !important; }
 
 /* ---------- Glass ---------- */
-.sp-glass { background: rgba(var(--glass-rgb), var(--glass)); -webkit-backdrop-filter: blur(30px) saturate(1.6); backdrop-filter: blur(30px) saturate(1.6); border-radius: 14px; box-shadow: inset 0 0 0 0.5px var(--glass-edge), 0 8px 24px rgba(var(--shadow-rgb), calc(0.07 * var(--shadow-a))), 0 24px 56px rgba(var(--shadow-rgb), calc(0.08 * var(--shadow-a))); }
-.sp-chip { background: rgba(var(--glass-rgb), calc(var(--glass) + 0.1)); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); border-radius: 10px; box-shadow: inset 0 0 0 0.5px var(--glass-edge); }
+.sp-glass { background: rgba(var(--glass-rgb), calc(var(--glass) + var(--glass-extra))); -webkit-backdrop-filter: blur(30px) saturate(1.6); backdrop-filter: blur(30px) saturate(1.6); border-radius: 14px; box-shadow: var(--glass-lift); }
+.sp-chip { background: rgba(var(--glass-rgb), calc(var(--glass) + var(--glass-extra) + 0.1)); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); border-radius: 10px; box-shadow: inset 0 0 0 0.5px var(--glass-edge); }
 
 /* ---------- Glyph ---------- */
 .sp-glyph { display: block; flex: none; color: var(--ink); }
@@ -130,12 +137,12 @@
 .sp-switch.on::after { left: 14px; background: var(--knob-on); }
 
 /* ---------- Tabs ---------- */
-.sp-tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: rgba(var(--glass-rgb), var(--glass)); box-shadow: inset 0 0 0 0.5px var(--glass-edge); }
+.sp-tabs { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: rgba(var(--glass-rgb), calc(var(--glass) + var(--glass-extra))); box-shadow: inset 0 0 0 0.5px var(--glass-edge); }
 .sp-tab { height: 26px; padding: 0 14px; display: inline-flex; align-items: center; border-radius: 7px; font: 500 12px/16px var(--font); color: var(--ink-2); }
 .sp-tab.on { background: var(--tab-on); color: var(--ink); box-shadow: 0 1px 3px rgba(var(--shadow-rgb), 0.12); }
 
 /* ---------- Buttons ---------- */
-.sp-pill { height: 30px; padding: 0 14px; display: inline-flex; align-items: center; border-radius: 15px; font: 500 12px/16px var(--font); background: rgba(var(--glass-rgb), var(--glass)); box-shadow: inset 0 0 0 0.5px var(--glass-edge); }
+.sp-pill { height: 30px; padding: 0 14px; display: inline-flex; align-items: center; border-radius: 15px; font: 500 12px/16px var(--font); background: rgba(var(--glass-rgb), calc(var(--glass) + var(--glass-extra))); box-shadow: inset 0 0 0 0.5px var(--glass-edge); }
 .sp-pill.disabled { opacity: 0.45; }
 .sp-ink { height: 36px; padding: 0 22px; display: inline-flex; align-items: center; border-radius: 18px; background: var(--ink-solid); color: var(--on-ink); font: 500 13px/16px var(--font); box-shadow: 0 1px 2px rgba(20, 27, 36, 0.2), 0 8px 20px rgba(20, 27, 36, 0.15); }
 .sp-ink.lg { height: 40px; padding: 0 20px; border-radius: 20px; }
@@ -175,7 +182,7 @@
 .sp-sep { height: 1px; margin: 4px 9px; background: var(--menu-sep); }
 
 /* ---------- Snap pop-up ---------- */
-.sp-popup { width: 176px; padding: 20px 20px 18px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 14px; border-radius: 28px; background: rgba(var(--glass-rgb), calc(var(--glass) + 0.3)); -webkit-backdrop-filter: blur(40px) saturate(1.8); backdrop-filter: blur(40px) saturate(1.8); box-shadow: inset 0 0 0 0.5px var(--glass-edge), 0 0 0 0.5px rgba(0, 0, 0, 0.1), 0 16px 40px rgba(var(--shadow-rgb), calc(0.16 * var(--shadow-a))), 0 40px 80px rgba(var(--shadow-rgb), calc(0.16 * var(--shadow-a))); }
+.sp-popup { width: 176px; padding: 20px 20px 18px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; gap: 14px; border-radius: 28px; background: rgba(var(--glass-rgb), calc(var(--glass) + var(--glass-extra) + 0.3)); -webkit-backdrop-filter: blur(40px) saturate(1.8); backdrop-filter: blur(40px) saturate(1.8); box-shadow: inset 0 0 0 0.5px var(--glass-edge), 0 0 0 0.5px rgba(0, 0, 0, 0.1), 0 16px 40px rgba(var(--shadow-rgb), calc(0.16 * var(--shadow-a))), 0 40px 80px rgba(var(--shadow-rgb), calc(0.16 * var(--shadow-a))); }
 .sp-popup .name { font: 600 14px/17px var(--font); letter-spacing: -0.15px; white-space: nowrap; }
 .sp-display { position: relative; width: 96px; height: 62px; border-radius: 11px; box-shadow: inset 0 0 0 1.25px rgba(var(--line-rgb), 0.3); flex: none; }
 .sp-display .guide { position: absolute; background: rgba(var(--line-rgb), 0.14); }
