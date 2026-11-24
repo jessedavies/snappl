@@ -1,0 +1,24 @@
+<!doctype html>
+<!-- One Snappl screen from demo state: screen.html?s=<name>. The library frames
+     these and sends toolbar changes by postMessage. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Snappl screen</title>
+<link rel="stylesheet" href="pieces.css">
+<style>html, body { margin: 0; background: #ebe9e5; } #screen { display: flex; justify-content: center; align-items: flex-start; padding: 20px; }</style>
+</head>
+<body>
+<div id="screen"></div>
+<script type="module">
+  import { renderScreen } from './pieces.js';
+  import { CONTROLS, applyEnv } from './env.js';
+  const name = new URLSearchParams(location.search).get('s') || 'settings-shortcuts';
+  let env = Object.fromEntries(CONTROLS.map((c) => [c.key, c.default]));
+  try { env = { ...env, ...JSON.parse(localStorage.getItem('exploded-view:env') || '{}') }; } catch {}
+  const draw = () => { applyEnv(env); document.getElementById('screen').innerHTML = renderScreen(name, env); };
+  addEventListener('message', (e) => { if (e.data?.type === 'exploded-view:env') { env = { ...env, ...e.data.env }; draw(); } });
+  draw();
+</script>
+</body>
+</html>

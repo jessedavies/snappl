@@ -51,6 +51,16 @@ Releases are signed with the self-signed certificate, not by Apple, so Gatekeepe
 
 Note on coordinates: the Accessibility API measures from the top-left of the primary display, `NSScreen` from the bottom-left. `WindowMover` keeps everything in Accessibility coordinates and converts screens on the way in.
 
+## Design library
+
+`library/` is the exploded view of the app: colours, type, paintings, every component in every state, motion, and the screens with demo state, plus PNGs the app renders of itself (`library/render.sh`). It's a static web page, not part of the app:
+
+```bash
+python3 -m http.server 8791 -d library
+```
+
+Then open http://localhost:8791. Each piece is an HTML rendition of a SwiftUI view; its inspector names the Swift file and view it stands for. Keep them in step: change the rendition when the view changes.
+
 ## Working on the design
 
 Run `./scripts/build-app.sh` first; these use `build/Snappl.app/Contents/MacOS/Snappl`. Quit the installed Snappl before using the on-screen ones.
