@@ -6,7 +6,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 ./scripts/build-app.sh > /dev/null
 BIN=build/Snappl.app/Contents/MacOS/Snappl
-for flag in --render-settings --render-popup; do
+for flag in --render-settings --render-popup --render-onboarding; do
   "$BIN" $flag library/renders -shortcuts none &
   pid=$!
   for i in {1..60}; do kill -0 $pid 2>/dev/null || break; sleep 0.5; done

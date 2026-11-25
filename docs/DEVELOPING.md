@@ -45,6 +45,8 @@ Releases are signed with the self-signed certificate, not by Apple, so Gatekeepe
 | `Sources/Snappl/ShortcutRecorder.swift` | the shortcut recorder in Settings |
 | `Sources/Snappl/SettingsWindow.swift` | the Settings window |
 | `Sources/Snappl/SnapPopup.swift` | the snap pop-up |
+| `Sources/Snappl/Onboarding.swift` | first run: the permission, then a live try-it |
+| `Sources/Snappl/Theme.swift` | light and dark colours, the Appearance setting |
 | `Sources/Snappl/AppDelegate.swift` | the menu bar item, the menu and launch flags |
 | `Resources/` | `Info.plist`, the app icon, the paintings |
 | `scripts/make-icon.py` | rebuilds `Resources/AppIcon.icns` (needs Pillow) |
@@ -70,7 +72,9 @@ Run `./scripts/build-app.sh` first; these use `build/Snappl.app/Contents/MacOS/S
 | `--demo-popup` | steps the pop-up through a left-half cycle on screen, no permission needed |
 | `--render-popup <folder>` | writes PNGs of the pop-up for several snaps, then exits |
 | `--render-settings <folder>` | writes PNGs of Settings (both panes, and recording), then exits |
+| `--render-onboarding <folder>` | writes PNGs of first run (both steps, light and dark), then exits |
 | `--settings` | opens Settings on launch |
+| `--onboarding` | opens first run on launch, even if it's been finished |
 
 Add `-shortcuts none` to any of them to show the default shortcuts without touching your saved ones.
 

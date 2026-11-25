@@ -27,7 +27,7 @@ Snappl needs one permission: **Accessibility**, which is how macOS lets one app 
 1. When macOS asks, click **Open System Settings**. (Or open **System Settings → Privacy & Security → Accessibility** yourself.)
 2. Switch **Snappl** on.
 
-That's it. Snappl lives in the menu bar; click its icon for every snap and its shortcut, Settings and Quit.
+Snappl's welcome window walks you through it, then has you try ⌥⌘← straight away. Snappl lives in the menu bar; click its icon for every snap and its shortcut, Settings and Quit.
 
 If you use Spectacle or Rectangle, quit it first. They listen for the same shortcuts.
 

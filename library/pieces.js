@@ -161,16 +161,17 @@ export function firstRun(step = 'ask', pressed = 0) {
     ? `<div class="sp-tile" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center">${glyph([0, 0, 50, 100], 1.5)}</div>
        <div><b style="display:block;font-size:24px;line-height:29px;letter-spacing:-0.4px;margin-bottom:8px">Let Snappl move your windows</b>
        <p style="margin:0;font-size:14px;line-height:22px;color:var(--ink-2)">macOS asks before any app can move another app’s windows. Snappl only moves and resizes them. It never reads what’s inside.</p></div>
+       <div style="display:flex;flex-direction:column;gap:10px">${[1, 2].map((n) => `<span style="display:flex;gap:10px;align-items:center"><span style="width:20px;height:20px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(var(--line-rgb),0.3);display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:600">${n}</span>${n === 1 ? 'Open Accessibility Settings' : 'Switch on Snappl'}</span>`).join('')}</div>
        <div style="display:flex;justify-content:space-between;align-items:center"><small style="color:var(--ink-3);font-size:12px">Waiting for access</small>${inkButton('Open Accessibility Settings', true)}</div>`
     : `<div><small style="font-size:12px;font-weight:500;color:var(--ink-2)">✓ Access granted</small><b style="display:block;font-size:24px;line-height:29px;letter-spacing:-0.4px;margin:8px 0">Now try it</b>
-       <p style="margin:0;font-size:14px;line-height:22px;color:var(--ink-2)">Once for half. Again for two thirds, again for a third.</p></div>
+       <p style="margin:0;font-size:14px;line-height:22px;color:var(--ink-2)">Press ⌥⌘←. Once for half, again for two thirds, again for a third.</p></div>
        <div class="sp-well" style="display:flex;justify-content:space-between;align-items:center;padding:18px 20px">${keycaps('⌥⌘←', { lg: true, pressed: pressed > 0 })}
-         <span style="display:flex;align-items:center;gap:14px"><b style="font-size:13px">${pressed ? popupLabel(byId.leftHalf, pressed - 1).replace('Left ', '').replace(/^./, (c) => c.toUpperCase()) : 'Full screen'}</b>${miniDisplay(pressed ? snapRegion(byId.leftHalf, pressed - 1) : [0, 0, 1, 1])}</span></div>
-       ${settingRow('Show icon in menu bar', '', switchEl(true))}${settingRow('Open at login', '', switchEl(true))}
-       <div style="display:flex;justify-content:flex-end">${inkButton('Done')}</div>`;
-  return painted(`<div style="padding:56px 32px 32px;height:540px;box-sizing:border-box"><div class="sp-lights" style="position:absolute;top:16px;left:16px"><i></i><i></i><i></i></div>
+         <span style="display:flex;align-items:center;gap:14px"><b style="font-size:13px">${pressed ? popupLabel(byId.leftHalf, pressed - 1) : 'Full screen'}</b>${miniDisplay(pressed ? snapRegion(byId.leftHalf, pressed - 1) : [0, 0, 1, 1])}</span></div>
+       ${settingRow('Show the snap pop-up', '', switchEl(true))}${settingRow('Open at login', '', switchEl(true))}
+       <div style="display:flex;justify-content:space-between;align-items:center"><small style="font-size:12px;color:var(--ink-3)">Snappl lives in the menu bar. Settings are there too.</small>${inkButton('Done')}</div>`;
+  return painted(`<div style="padding:52px 32px 32px;height:580px;box-sizing:border-box"><div class="sp-lights" style="position:absolute;top:16px;left:16px"><i></i><i></i><i></i></div>
     <div class="sp-glass" style="padding:28px;border-radius:22px;display:flex;flex-direction:column;gap:20px">${sheet}</div>
-    <span style="position:absolute;left:16px;bottom:16px">${wallLabel('Yarra Winter Night, 1929')}</span></div>`, 'width:600px;height:540px;border-radius:12px', 'winter-night');
+    <span style="position:absolute;left:16px;bottom:16px">${wallLabel('Yarra Winter Night, 1929')}</span></div>`, 'width:600px;height:580px;border-radius:12px', 'winter-night');
 }
 
 export function installWindow() {

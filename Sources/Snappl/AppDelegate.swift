@@ -8,6 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let prefs = Preferences.shared
     private lazy var popup = SnapPopup()
     private lazy var settings = SettingsWindowController(recorder: recorder)
+    private lazy var onboarding = OnboardingWindowController { [weak self] step in self?.showDemoPopup(step: step) }
     private lazy var recorder = ShortcutRecorder { [weak self] recording in
         // Global shortcuts would swallow the keys being recorded, so they are
         // switched off while the recorder listens.
@@ -27,6 +28,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         if let i = CommandLine.arguments.firstIndex(of: "--render-settings"), i + 1 < CommandLine.arguments.count {
             SettingsSnapshots.write(to: URL(fileURLWithPath: CommandLine.arguments[i + 1]), recorder: recorder) {
+                NSApp.terminate(nil)
+            }
+            return
+        }
+        if let i = CommandLine.arguments.firstIndex(of: "--render-onboarding"), i + 1 < CommandLine.arguments.count {
+            OnboardingSnapshots.write(to: URL(fileURLWithPath: CommandLine.arguments[i + 1])) {
                 NSApp.terminate(nil)
             }
             return
@@ -51,7 +58,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             .sink { [weak self] _ in self?.applyShortcuts() }
             .store(in: &cancellables)
         applyShortcuts()
-        askForAccessibilityIfNeeded()
+        // First run: on first launch, and whenever the permission is missing.
+        if !OnboardingWindowController.hasFinished || !AXIsProcessTrusted() || CommandLine.arguments.contains("--onboarding") {
+            onboarding.show()
+        }
         if CommandLine.arguments.contains("--settings") { openSettings() }
     }
 
@@ -80,9 +90,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     private func snap(_ action: SnapAction) {
+        // In first run's "Now try it", the shortcut drives the demo instead.
+        if action == .leftHalf, onboarding.isTakingShortcuts {
+            onboarding.demoPress()
+            return
+        }
         if let result = mover.perform(action), prefs.showPopup {
             popup.show(result)
         }
+    }
+
+    /// The real pop-up for first run's demo, as if the left half had snapped.
+    private func showDemoPopup(step: Int) {
+        guard prefs.showPopup, let screen = NSScreen.main else { return }
+        let area = WindowMover.visibleArea(of: screen)
+        let frame = SnapAction.leftHalf.frame(in: area, step: step, current: area)
+        popup.show(.init(action: .leftHalf, step: step, frame: frame, area: area))
     }
 
     /// Steps the pop-up through a left-half cycle on the main screen, with no
@@ -102,23 +125,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     // MARK: Accessibility
 
-    private var trustTimer: Timer?
-
-    private func askForAccessibilityIfNeeded() {
-        guard !AXIsProcessTrusted() else { return }
-        let prompt = kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String
-        AXIsProcessTrustedWithOptions([prompt: true] as CFDictionary)
-        trustTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] timer in
-            if AXIsProcessTrusted() {
-                timer.invalidate()
-                self?.trustTimer = nil
-            }
-        }
-    }
-
-    @objc private func openAccessibilitySettings() {
-        let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility")!
-        NSWorkspace.shared.open(url)
+    @objc private func openOnboarding() {
+        onboarding.show()
     }
 
     // MARK: Menu
@@ -127,7 +135,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.removeAllItems()
 
         if !AXIsProcessTrusted() {
-            let item = NSMenuItem(title: "Allow Snappl in Accessibility…", action: #selector(openAccessibilitySettings), keyEquivalent: "")
+            let item = NSMenuItem(title: "Allow Snappl in Accessibility…", action: #selector(openOnboarding), keyEquivalent: "")
             item.target = self
             menu.addItem(item)
             menu.addItem(.separator())

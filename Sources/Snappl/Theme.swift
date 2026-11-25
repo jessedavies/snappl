@@ -13,6 +13,10 @@ enum Theme {
     /// The pop-up's mini-display fill: ink at 88%, flattened so guides don't show through.
     static let inkFill = dynamic(light: rgb(56, 61, 68), dark: rgb(223, 227, 232))
     static let inkSolid = dynamic(light: rgb(29, 35, 43, 0.88), dark: rgb(232, 235, 239, 0.9))
+    /// Text on inkSolid (the ink button, pressed keycaps).
+    static let onInk = dynamic(light: rgb(255, 255, 255), dark: rgb(29, 35, 43))
+    static let keycapRaised = dynamic(light: rgb(255, 255, 255, 0.8), dark: rgb(255, 255, 255, 0.12))
+    static let well = dynamic(light: rgb(255, 255, 255, 0.35), dark: rgb(255, 255, 255, 0.06))
     /// Switch track when on. Dark uses slate so the system's white knob still shows.
     static let switchTint = dynamic(light: rgb(29, 35, 43), dark: rgb(122, 138, 160))
 

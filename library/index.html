@@ -112,7 +112,7 @@
       props: { size: ['regular', 'large'], state: ['rest', 'pressed'] }, skip: (p) => p.size === 'regular' && p.state === 'pressed',
       render: ({ size, state }) => onPainting(P.keycaps(size === 'large' ? '⌥⌘←' : '⌃⇧⌘→', { lg: size === 'large', pressed: state === 'pressed' })),
       code: () => 'Keycap(text: cap)   // 22 pt, white 0.72, 0.5 pt ink edge, 1 pt lip',
-      native: { file: SWIFT + 'SettingsWindow.swift', view: 'Keycap', notes: 'Large and pressed are designed for first run, not built.' } },
+      native: { file: SWIFT + 'SettingsWindow.swift, Onboarding.swift', view: 'Keycap, BigKeycap', notes: 'Large keycaps light up in first run when the real shortcut is pressed.' } },
     { id: 'switch', group: 'Components', name: 'Switch', desc: 'The system switch, small, tinted ink. Never a stretched checkbox.', stage: 'none',
       props: { state: ['on', 'off'] }, render: ({ state }) => onPainting(P.switchEl(state === 'on')),
       code: ({ state }) => `Toggle("Open at login", isOn: $value)   // ${state}\n  .labelsHidden().toggleStyle(.switch)\n  .controlSize(.small).tint(Palette.ink)`,
@@ -129,9 +129,10 @@
       props: { state: ['enabled', 'disabled'] }, render: ({ state }) => onPainting(P.pill('Restore Spectacle defaults', state === 'disabled')),
       code: () => 'Button("Restore Spectacle defaults") { prefs.restoreSpectacleDefaults() }\n  .buttonStyle(GlassPillStyle())\n  .disabled(prefs.isUsingDefaults)',
       native: { file: SWIFT + 'SettingsWindow.swift', view: 'GlassPillStyle' } },
-    { id: 'ink-button', group: 'Components', name: 'Ink button', status: 'designed', desc: 'The one action a screen exists for. Designed for first run; no screen uses it yet.', stage: 'none',
+    { id: 'ink-button', group: 'Components', name: 'Ink button', desc: 'The one action a screen exists for. Used in first run.', stage: 'none',
       props: { size: ['regular', 'large'] }, render: ({ size }) => onPainting(P.inkButton(size === 'large' ? 'Open Accessibility Settings' : 'Done', size === 'large')),
-      native: { file: '(not built)', notes: 'Canvas: Onboarding.dc.html.' } },
+      code: ({ size }) => `Button("${size === 'large' ? 'Open Accessibility Settings' : 'Done'}", action: …)\n  .buttonStyle(InkButtonStyle(large: ${size === 'large'}))`,
+      native: { file: SWIFT + 'Onboarding.swift', view: 'InkButtonStyle' } },
     { id: 'shortcut-row', group: 'Components', name: 'Shortcut row', desc: 'One snap in Settings. Click the keys to record; Esc cancels, Delete clears.', stage: 'none',
       props: { state: ['rest', 'hover', 'recording', 'refused', 'empty'], action: ['Left Half', 'Bottom Right', 'Previous Display'] }, matrix: ['state'], width: 360,
       render: ({ state, action }) => onPainting(`<div class="sp-glass sp-list" style="width:340px">${P.shortcutRow(idOf(action), state)}</div>`, '20px'),
@@ -169,7 +170,7 @@
 
     // App renders
     { id: 'renders', group: 'Screens', name: 'App renders', desc: 'Drawn by the app itself (library/render.sh). The renditions are checked against these.', stage: 'light',
-      custom: () => `<div class="renders">${[['settings-shortcuts', 300], ['settings-shortcuts-dark', 300], ['settings-recording', 300], ['settings-recording-dark', 300], ['settings-general', 300], ['settings-general-dark', 300], ['left-2-two-thirds', 200], ['left-2-two-thirds-dark', 200], ['maximise-dark', 200]].map(([n, w]) => `<figure><img src="renders/${n}.png" width="${w}" alt="${n}"><figcaption>${n}</figcaption></figure>`).join('')}</div><p class="note">Glass is flat in these renders: the app’s snapshot mode can’t draw system materials. Switches look grey because the render window isn’t active.</p>` },
+      custom: () => `<div class="renders">${[['settings-shortcuts', 300], ['settings-shortcuts-dark', 300], ['settings-recording', 300], ['settings-recording-dark', 300], ['settings-general', 300], ['settings-general-dark', 300], ['first-run-ask', 300], ['first-run-try', 300], ['first-run-try-dark', 300], ['left-2-two-thirds', 200], ['left-2-two-thirds-dark', 200], ['maximise-dark', 200]].map(([n, w]) => `<figure><img src="renders/${n}.png" width="${w}" alt="${n}"><figcaption>${n}</figcaption></figure>`).join('')}</div><p class="note">Glass is flat in these renders: the app’s snapshot mode can’t draw system materials. Switches look grey because the render window isn’t active.</p>` },
   ];
 
   const screens = [
@@ -180,8 +181,8 @@
     { name: 'Snap pop-up on a desktop', src: 'screen.html?s=popup', w: 1000, h: 640 },
     { name: 'Menu bar menu', src: 'screen.html?s=menu', w: 1000, h: 560 },
     { name: 'Menu · no access', src: 'screen.html?s=menu-no-access', w: 1000, h: 560 },
-    { name: 'First run · ask', src: 'screen.html?s=first-run-ask', w: 640, h: 580, status: 'designed' },
-    { name: 'First run · try it', src: 'screen.html?s=first-run-try', w: 640, h: 580, status: 'designed' },
+    { name: 'First run · ask', src: 'screen.html?s=first-run-ask', w: 640, h: 620 },
+    { name: 'First run · try it', src: 'screen.html?s=first-run-try', w: 640, h: 620 },
     { name: 'Install window (DMG)', src: 'screen.html?s=install', w: 680, h: 470 },
   ];
 

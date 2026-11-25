@@ -70,7 +70,7 @@ extension EnvironmentValues {
 
 /// Clear white glass over the painting: blur, a light tint, a hairline
 /// highlight and two soft shadows so the card floats.
-private struct Glass: ViewModifier {
+struct Glass: ViewModifier {
     var radius: CGFloat = 14
     var floating = true
     @Environment(\.isSnapshot) private var isSnapshot
@@ -94,7 +94,7 @@ private struct Glass: ViewModifier {
     }
 }
 
-private extension View {
+extension View {
     func glass(radius: CGFloat = 14, floating: Bool = true) -> some View {
         modifier(Glass(radius: radius, floating: floating))
     }
@@ -280,7 +280,7 @@ private struct ShortcutRow: View {
     }
 }
 
-private struct Keycap: View {
+struct Keycap: View {
     let text: String
 
     var body: some View {
@@ -368,7 +368,7 @@ private struct GeneralPane: View {
 
 // MARK: - Pieces
 
-private struct TabButtonStyle: ButtonStyle {
+struct TabButtonStyle: ButtonStyle {
     let selected: Bool
 
     func makeBody(configuration: Configuration) -> some View {
@@ -389,7 +389,7 @@ private struct TabButtonStyle: ButtonStyle {
     }
 }
 
-private struct GlassPillStyle: ButtonStyle {
+struct GlassPillStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
 
     func makeBody(configuration: Configuration) -> some View {
@@ -402,7 +402,7 @@ private struct GlassPillStyle: ButtonStyle {
     }
 }
 
-private struct WallLabel: View {
+struct WallLabel: View {
     let title: String
     let artist: String
 
@@ -424,13 +424,22 @@ private struct WallLabel: View {
 /// The painting, a white wash for contrast, and three soft colour blobs that
 /// drift over it. Each blob wanders on its own slow loop (different periods
 /// across x and y, so the pattern never visibly repeats). Still under Reduce Motion.
-private struct PaintedBackground: View {
+struct PaintedBackground: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.colorScheme) private var colorScheme
     private var isDark: Bool { colorScheme == .dark }
 
-    private static let painting: NSImage? = Bundle.main.url(forResource: "sunny-day", withExtension: "jpg")
-        .flatMap(NSImage.init(contentsOf:))
+    /// Resource name of the painting (in Resources/Paintings) and the window size it fills.
+    var painting = "sunny-day"
+    var size = SettingsView.size
+
+    private static var cache: [String: NSImage] = [:]
+    private var image: NSImage? {
+        if let hit = Self.cache[painting] { return hit }
+        let loaded = Bundle.main.url(forResource: painting, withExtension: "jpg").flatMap(NSImage.init(contentsOf:))
+        Self.cache[painting] = loaded
+        return loaded
+    }
 
     private struct Blob {
         let color: Color
@@ -456,12 +465,12 @@ private struct PaintedBackground: View {
     var body: some View {
         ZStack {
             Theme.ground
-            if let painting = Self.painting {
-                Image(nsImage: painting)
+            if let image {
+                Image(nsImage: image)
                     .resizable()
                     .interpolation(.high)
                     .scaledToFill()
-                    .frame(width: SettingsView.size.width, height: SettingsView.size.height)
+                    .frame(width: size.width, height: size.height)
                     .clipped()
                     .contrast(isDark ? 0.95 : 0.9)
                     .saturation(isDark ? 0.85 : 1)
@@ -477,11 +486,11 @@ private struct PaintedBackground: View {
                 }
                 // Full-window canvas: drawingGroup clips to its frame, and the
                 // blobs wander well past their own size.
-                .frame(width: SettingsView.size.width, height: SettingsView.size.height)
+                .frame(width: size.width, height: size.height)
                 .drawingGroup()
             }
         }
-        .frame(width: SettingsView.size.width, height: SettingsView.size.height)
+        .frame(width: size.width, height: size.height)
         .clipped()
         .allowsHitTesting(false)
         .accessibilityHidden(true)
