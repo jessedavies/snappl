@@ -15,6 +15,9 @@ final class SnapPopup {
 
     private static let radius: CGFloat = 28
     private static let visibleFor: TimeInterval = 0.9
+    /// Measured once: the layout no longer changes size between snaps, and
+    /// measuring on every show could read the previous snap's layout.
+    private lazy var tileSize: CGSize = hosting.fittingSize
 
     init() {
         panel = NSPanel(contentRect: .zero, styleMask: [.borderless, .nonactivatingPanel], backing: .buffered, defer: true)
@@ -59,7 +62,7 @@ final class SnapPopup {
 
         // Always the centre of the screen the window ended up on. The tile stays
         // put on repeat presses; only its contents change.
-        let frame = Self.panelFrame(size: hosting.fittingSize, centredOn: result.area)
+        let frame = Self.panelFrame(size: tileSize, centredOn: result.area)
         panel.setFrame(frame, display: true)
         if !wasVisible { panel.alphaValue = 0 }
         panel.orderFrontRegardless()
@@ -154,15 +157,17 @@ struct PopupView: View {
                     .tracking(-0.15)
                     .foregroundStyle(ink)
                     .lineLimit(1)
-                if model.axis != .none {
-                    HStack(spacing: 4) {
-                        ForEach(0..<SnapAction.cycle.count, id: \.self) { i in
-                            Capsule()
-                                .fill(ink.opacity(i == model.step ? 0.88 : 0.22))
-                                .frame(width: i == model.step ? 16 : 5, height: 5)
-                        }
+                // Always laid out, so every snap gives the same tile size; hidden
+                // for snaps that don't cycle (maximise, centre, displays, restore).
+                HStack(spacing: 4) {
+                    ForEach(0..<SnapAction.cycle.count, id: \.self) { i in
+                        Capsule()
+                            .fill(ink.opacity(i == model.step ? 0.88 : 0.22))
+                            .frame(width: i == model.step ? 16 : 5, height: 5)
                     }
                 }
+                .opacity(model.axis == .none ? 0 : 1)
+                .accessibilityHidden(true)
             }
         }
         .padding(EdgeInsets(top: 20, leading: 20, bottom: 18, trailing: 20))

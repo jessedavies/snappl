@@ -159,7 +159,7 @@
       props: { action: titles, step: ['½', '⅔', '⅓'] }, matrix: ['action'],
       render: ({ action, step }, env) => onPainting(P.popup(idOf(action), ['½', '⅔', '⅓'].indexOf(step), env.cycling !== false), '24px'),
       code: () => 'popup.show(result)   // centred on result.area; fades in 140 ms,\n                     // holds 0.9 s, fades out 220 ms',
-      native: { file: SWIFT + 'SnapPopup.swift', view: 'SnapPopup, PopupView, MiniDisplay', notes: 'NSPanel, non-activating, all Spaces. Repeat presses keep the tile still; only the fill and dots move.' } },
+      native: { file: SWIFT + 'SnapPopup.swift', view: 'SnapPopup, PopupView, MiniDisplay', notes: 'NSPanel, non-activating, all Spaces. One fixed size for every snap: the dots row is always laid out and hidden when the snap doesn't cycle. Repeat presses keep the tile still; only the fill and dots move.' } },
 
     // Motion
     { id: 'motion', group: 'Motion', name: 'Snap curve', desc: 'UI changes ride one curve. Press the key to cycle the pop-up.', stage: 'none',

@@ -115,7 +115,8 @@ export function miniDisplay(region, axis = 'none') {
 export function popup(action, step = 0, cycling = true) {
   const a = byId[action];
   const axis = cycling ? a.axis : 'none';
-  const dots = axis !== 'none' ? `<div class="sp-dots">${[0, 1, 2].map((i) => `<span class="sp-dot ${i === step % 3 ? 'on' : ''}"></span>`).join('')}</div>` : '';
+  // Always laid out (hidden when the snap doesn't cycle) so every tile is the same size.
+  const dots = `<div class="sp-dots" style="${axis !== 'none' ? '' : 'visibility:hidden'}" aria-hidden="true">${[0, 1, 2].map((i) => `<span class="sp-dot ${i === step % 3 ? 'on' : ''}"></span>`).join('')}</div>`;
   return `<div class="sp sp-popup" role="status" data-action="${action}" data-step="${step}">${miniDisplay(snapRegion(a, step, cycling), axis)}
     <div style="display:flex;flex-direction:column;align-items:center;gap:9px"><span class="name">${cycling ? popupLabel(a, step) : popupLabel(a, 0)}</span>${dots}</div></div>`;
 }
